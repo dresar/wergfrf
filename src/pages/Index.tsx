@@ -10,6 +10,7 @@ import { CertificatesSection } from '@/components/sections/CertificatesSection';
 import { ContactSection } from '@/components/sections/ContactSection';
 import { GlobalModal } from '@/components/GlobalModal';
 import { BlobCursor } from '@/components/effects/BlobCursor';
+import { FloatingWhatsApp } from '@/components/effects/FloatingWhatsApp';
 
 const Index = () => {
   return (
@@ -36,6 +37,9 @@ const Index = () => {
       
       {/* Footer */}
       <Footer />
+      
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
       
       {/* Global Modal System */}
       <GlobalModal />
