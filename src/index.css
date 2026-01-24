@@ -6,44 +6,44 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 180 100% 98%;
+    --background: 210 20% 98%;
+    --foreground: 220 20% 10%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 180 100% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 180 100% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
 
-    --primary: 174 100% 41%;
-    --primary-foreground: 0 0% 2%;
+    --primary: 174 100% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 180 100% 95%;
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 20% 20%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 180 10% 60%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 174 100% 41%;
-    --accent-foreground: 0 0% 2%;
+    --accent: 270 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 15%;
-    --ring: 174 100% 41%;
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
+    --ring: 174 100% 35%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 180 100% 98%;
-    --sidebar-primary: 174 100% 41%;
-    --sidebar-primary-foreground: 0 0% 2%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 180 100% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 174 100% 41%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 10%;
+    --sidebar-primary: 174 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 95%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 174 100% 35%;
 
     --chart-1: 174 100% 41%;
     --chart-2: 180 80% 50%;
@@ -54,8 +54,8 @@
     --font-heading: 'Poppins', sans-serif;
     --font-body: 'Montserrat', sans-serif;
 
-    --glow-primary: 0 0 30px hsl(174 100% 41% / 0.5);
-    --glow-primary-lg: 0 0 60px hsl(174 100% 41% / 0.4), 0 0 120px hsl(174 100% 41% / 0.2);
+    --glow-primary: 0 0 30px hsl(174 100% 41% / 0.3);
+    --glow-primary-lg: 0 0 60px hsl(174 100% 41% / 0.25), 0 0 120px hsl(174 100% 41% / 0.15);
   }
 
   .dark {
@@ -77,8 +77,8 @@
     --muted: 0 0% 15%;
     --muted-foreground: 180 10% 60%;
 
-    --accent: 174 100% 41%;
-    --accent-foreground: 0 0% 2%;
+    --accent: 270 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
