@@ -27,6 +27,7 @@ const WATemplateManager = lazy(() => import("./pages/admin/WATemplateManager"));
 const ContentEditor = lazy(() => import("./pages/admin/ContentEditor"));
 const BlogManager = lazy(() => import("./pages/admin/BlogManager"));
 const BlogForm = lazy(() => import("./pages/admin/BlogForm"));
+const MediaManager = lazy(() => import("./pages/admin/MediaManager"));
 
 const queryClient = new QueryClient();
 
