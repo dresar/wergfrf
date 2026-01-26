@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HeroSection } from '@/components/sections/HeroSection';
@@ -11,8 +12,16 @@ import { ContactSection } from '@/components/sections/ContactSection';
 import { GlobalModal } from '@/components/GlobalModal';
 import { BlobCursor } from '@/components/effects/BlobCursor';
 import { FloatingWhatsApp } from '@/components/effects/FloatingWhatsApp';
+import { ScrollToTop } from '@/components/effects/ScrollToTop';
+import { useAdminStore } from '@/store/adminStore';
 
 const Index = () => {
+  const { fetchInitialData } = useAdminStore();
+
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Custom Cursor - Hidden on mobile */}
@@ -40,6 +49,9 @@ const Index = () => {
       
       {/* Floating WhatsApp Button */}
       <FloatingWhatsApp />
+
+      {/* Scroll To Top Button */}
+      <ScrollToTop />
       
       {/* Global Modal System */}
       <GlobalModal />

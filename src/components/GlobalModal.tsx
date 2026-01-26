@@ -1,11 +1,25 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Github, Calendar, User, Clock, Target, Lightbulb, TrendingUp, ChevronLeft, ChevronRight, Award, FileText, Building } from 'lucide-react';
+import { X, ExternalLink, Github, ChevronLeft, ChevronRight, Award, FileText, Play } from 'lucide-react';
 import { useModalStore } from '@/store/modalStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const GlobalModal = () => {
   const { isOpen, modalType, projectData, educationData, documentUrl, documentTitle, certificateData, closeModal } = useModalStore();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentImageIndex(0);
+      setCurrentMediaIndex(0);
+    }
+  }, [isOpen, projectData, educationData]);
+
+  const mediaItems = projectData ? [
+    ...(projectData.video_url ? [{ type: 'video', url: projectData.video_url }] : []),
+    ...(projectData.images?.map(img => ({ type: 'image', url: img.image, caption: img.caption })) || []),
+    ...(projectData.thumbnail ? [{ type: 'image', url: projectData.thumbnail }] : [])
+  ] : [];
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -17,17 +31,23 @@ export const GlobalModal = () => {
     if (educationData?.gallery) {
       setCurrentImageIndex((prev) => (prev + 1) % educationData.gallery.length);
     }
-    if (projectData?.images) {
-      setCurrentImageIndex((prev) => (prev + 1) % projectData.images.length);
-    }
   };
 
   const prevImage = () => {
     if (educationData?.gallery) {
       setCurrentImageIndex((prev) => (prev - 1 + educationData.gallery.length) % educationData.gallery.length);
     }
-    if (projectData?.images) {
-      setCurrentImageIndex((prev) => (prev - 1 + projectData.images.length) % projectData.images.length);
+  };
+
+  const nextMedia = () => {
+    if (mediaItems.length > 0) {
+      setCurrentMediaIndex((prev) => (prev + 1) % mediaItems.length);
+    }
+  };
+
+  const prevMedia = () => {
+    if (mediaItems.length > 0) {
+      setCurrentMediaIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
     }
   };
 
@@ -63,147 +83,131 @@ export const GlobalModal = () => {
             {/* Project Modal */}
             {modalType === 'project' && projectData && (
               <div className="p-6 md:p-8">
-                {/* Header */}
-                <div className="mb-8">
-                  <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary mb-4">
-                    {projectData.category.toUpperCase()}
-                  </span>
+                {/* Header Section */}
+                <div className="mb-6">
+                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary uppercase tracking-wider">
+                      {projectData.category_details?.name || projectData.category || 'PROJECT'}
+                    </span>
+                  </div>
                   <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">{projectData.title}</h2>
-                  <p className="text-muted-foreground text-lg">{projectData.fullDescription}</p>
+                  <p className="text-muted-foreground text-lg leading-relaxed">{projectData.description}</p>
                 </div>
 
-                {/* Image Gallery */}
-                <div className="relative mb-8 rounded-xl overflow-hidden bg-muted aspect-video">
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <span className="text-lg">Project Screenshot {currentImageIndex + 1}</span>
+                {/* Media Carousel */}
+                {mediaItems.length > 0 && (
+                  <div className="mb-8 space-y-4">
+                    <div className="relative rounded-xl overflow-hidden bg-black aspect-video group shadow-lg border border-border/50">
+                        {mediaItems[currentMediaIndex].type === 'youtube' ? (
+                            <iframe 
+                                src={mediaItems[currentMediaIndex].url.replace('watch?v=', 'embed/')} 
+                                className="w-full h-full" 
+                                title="YouTube video player"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            />
+                        ) : mediaItems[currentMediaIndex].type === 'video' ? (
+                            <video 
+                                src={mediaItems[currentMediaIndex].url} 
+                                controls 
+                                className="w-full h-full"
+                            />
+                        ) : (
+                            <img 
+                                src={mediaItems[currentMediaIndex].url} 
+                                alt={mediaItems[currentMediaIndex].caption || projectData.title} 
+                                className="w-full h-full object-contain"
+                            />
+                        )}
+
+                        {/* Navigation Arrows */}
+                        {mediaItems.length > 1 && (
+                            <>
+                                <button
+                                    onClick={prevMedia}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-background/50 hover:bg-background text-foreground transition-all opacity-0 group-hover:opacity-100 hover:scale-110 backdrop-blur-sm"
+                                >
+                                    <ChevronLeft className="w-6 h-6" />
+                                </button>
+                                <button
+                                    onClick={nextMedia}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-background/50 hover:bg-background text-foreground transition-all opacity-0 group-hover:opacity-100 hover:scale-110 backdrop-blur-sm"
+                                >
+                                    <ChevronRight className="w-6 h-6" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Thumbnails - Horizontal Scroll on Mobile */}
+                    {mediaItems.length > 1 && (
+                        <div className="relative">
+                          <div className="flex gap-3 overflow-x-auto pb-4 px-1 snap-x snap-mandatory no-scrollbar">
+                              {mediaItems.map((item, index) => (
+                                  <button
+                                      key={index}
+                                      onClick={() => setCurrentMediaIndex(index)}
+                                      className={`flex-shrink-0 relative w-24 h-16 md:w-32 md:h-20 rounded-lg overflow-hidden bg-muted border-2 transition-all snap-center ${
+                                          currentMediaIndex === index ? 'border-primary ring-2 ring-primary/20' : 'border-transparent opacity-70 hover:opacity-100'
+                                      }`}
+                                  >
+                                      {item.type === 'image' ? (
+                                          <img src={item.url} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                          <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                                              <Play className="w-8 h-8 text-white" />
+                                          </div>
+                                      )}
+                                  </button>
+                              ))}
+                          </div>
+                        </div>
+                    )}
                   </div>
-                  {projectData.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background transition-colors"
-                      >
-                        <ChevronLeft className="w-6 h-6" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background transition-colors"
-                      >
-                        <ChevronRight className="w-6 h-6" />
-                      </button>
-                    </>
-                  )}
-                </div>
+                )}
 
                 {/* Project Details Grid */}
-                <div className="grid md:grid-cols-2 gap-8 mb-8">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Meta Info */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 rounded-lg bg-muted/30">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                          <User className="w-4 h-4" />
-                          <span className="text-sm">Client</span>
-                        </div>
-                        <p className="font-medium">{projectData.modalDetails.client}</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-muted/30">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                          <Clock className="w-4 h-4" />
-                          <span className="text-sm">Duration</span>
-                        </div>
-                        <p className="font-medium">{projectData.modalDetails.duration}</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-muted/30">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                          <Building className="w-4 h-4" />
-                          <span className="text-sm">Role</span>
-                        </div>
-                        <p className="font-medium">{projectData.modalDetails.role}</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-muted/30">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                          <Calendar className="w-4 h-4" />
-                          <span className="text-sm">Completed</span>
-                        </div>
-                        <p className="font-medium">{new Date(projectData.completedDate).toLocaleDateString()}</p>
-                      </div>
-                    </div>
+                <div className="grid md:grid-cols-1 gap-8 mb-8">
+                    {/* Content (Rich Text) */}
+                    {projectData.content && (
+                      <div 
+                        className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-muted-foreground"
+                        dangerouslySetInnerHTML={{ __html: projectData.content }}
+                      />
+                    )}
 
                     {/* Technologies */}
-                    <div>
-                      <h4 className="font-semibold mb-3">Technologies Used</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {projectData.technologies.map((tech) => (
-                          <span
-                            key={tech.id}
-                            className="px-3 py-1 text-sm rounded-full bg-primary/10 text-primary border border-primary/20"
-                          >
-                            {tech.name}
-                          </span>
-                        ))}
+                    {projectData.techStack && (
+                      <div>
+                        <h4 className="font-semibold mb-3">Technologies Used</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {(() => {
+                            try {
+                              const techs = typeof projectData.techStack === 'string' 
+                                ? JSON.parse(projectData.techStack) 
+                                : projectData.techStack;
+                              return Array.isArray(techs) ? techs.map((tech: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="px-3 py-1 text-sm rounded-full bg-primary/10 text-primary border border-primary/20"
+                                >
+                                  {tech}
+                                </span>
+                              )) : null;
+                            } catch (e) {
+                              return null;
+                            }
+                          })()}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-6">
-                    {/* Challenges */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Target className="w-5 h-5 text-destructive" />
-                        <h4 className="font-semibold">Challenges</h4>
-                      </div>
-                      <ul className="space-y-2">
-                        {projectData.modalDetails.challenges.map((challenge) => (
-                          <li key={challenge.id} className="flex items-start gap-2 text-muted-foreground">
-                            <span className="text-destructive mt-1">•</span>
-                            {challenge.description}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Solutions */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Lightbulb className="w-5 h-5 text-primary" />
-                        <h4 className="font-semibold">Solutions</h4>
-                      </div>
-                      <ul className="space-y-2">
-                        {projectData.modalDetails.solutions.map((solution) => (
-                          <li key={solution.id} className="flex items-start gap-2 text-muted-foreground">
-                            <span className="text-primary mt-1">•</span>
-                            {solution.description}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Results */}
-                <div className="mb-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    <h4 className="font-semibold">Results</h4>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {projectData.modalDetails.results.map((result) => (
-                      <div key={result.id} className="p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
-                        <p className="text-2xl md:text-3xl font-bold text-primary mb-1">{result.value}</p>
-                        <p className="text-sm text-muted-foreground">{result.metric}</p>
-                      </div>
-                    ))}
-                  </div>
+                    )}
                 </div>
 
                 {/* Links */}
                 <div className="flex gap-4">
-                  {projectData.liveUrl && (
+                  {projectData.demoUrl && (
                     <a
-                      href={projectData.liveUrl}
+                      href={projectData.demoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
@@ -212,9 +216,9 @@ export const GlobalModal = () => {
                       View Live
                     </a>
                   )}
-                  {projectData.githubUrl && (
+                  {projectData.repoUrl && (
                     <a
-                      href={projectData.githubUrl}
+                      href={projectData.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted text-foreground font-medium hover:bg-muted/80 transition-colors"
@@ -290,6 +294,17 @@ export const GlobalModal = () => {
             {/* Certificate Modal */}
             {modalType === 'certificate' && certificateData && (
               <div className="p-6 md:p-8">
+                {/* Certificate Image */}
+                {certificateData.image && (
+                  <div className="relative mb-6 rounded-xl overflow-hidden bg-muted aspect-video">
+                    <img 
+                      src={certificateData.image} 
+                      alt={certificateData.title} 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+
                 <div className="flex items-start gap-4 mb-6">
                   <div className="p-3 rounded-lg bg-primary/10">
                     <Award className="w-8 h-8 text-primary" />
@@ -298,10 +313,6 @@ export const GlobalModal = () => {
                     <h2 className="text-2xl md:text-3xl font-heading font-bold mb-2">{certificateData.title}</h2>
                     <p className="text-muted-foreground">{certificateData.issuer}</p>
                   </div>
-                </div>
-
-                <div className="rounded-xl overflow-hidden bg-muted aspect-[4/3] mb-6 flex items-center justify-center">
-                  <span className="text-muted-foreground">Certificate Image</span>
                 </div>
 
                 <div className="flex flex-wrap gap-4 mb-6">

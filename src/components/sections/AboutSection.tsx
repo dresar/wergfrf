@@ -1,15 +1,75 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
-import { aboutData } from '@/data/portfolioData';
+import { useTranslation } from 'react-i18next';
+import { useProfile } from '@/hooks/useProfile';
+import { useAdminStore } from '@/store/adminStore';
+import { useExperience } from '@/hooks/useExperience';
+import { useProjects } from '@/hooks/useProjects';
+import { useCertificates } from '@/hooks/useCertificates';
+import { useSkills } from '@/hooks/useSkills';
+import { useSocialLinks } from '@/hooks/useSocialLinks';
+import { Github, Linkedin, Twitter, Instagram, Facebook, Youtube, Mail, Globe, Link as LinkIcon } from 'lucide-react';
+
+const socialIcons: Record<string, any> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+  instagram: Instagram,
+  facebook: Facebook,
+  youtube: Youtube,
+  email: Mail,
+  website: Globe,
+  other: LinkIcon,
+};
 
 export const AboutSection = () => {
+  const { t, i18n } = useTranslation();
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
+  const { profile } = useProfile();
+  const { aboutContent } = useAdminStore();
+  const { experiences = [], isLoading } = useExperience();
+  const { projects = [] } = useProjects();
+  const { certificates = [] } = useCertificates();
+  const { skills = [] } = useSkills();
+  const { socialLinks = [] } = useSocialLinks();
+
+  // Determine localized content
+  const currentLang = i18n.language === 'en' ? 'en' : 'id';
+  
+  // Use AboutContent if available, otherwise fallback
+  const shortDesc = (aboutContent 
+    ? (currentLang === 'en' ? aboutContent.short_description_en : aboutContent.short_description_id)
+    : null) || (aboutContent?.short_description_id) || profile?.greeting || "";
+    
+  const longDesc = (aboutContent 
+    ? (currentLang === 'en' ? aboutContent.long_description_en : aboutContent.long_description_id)
+    : null) || (aboutContent?.long_description_id) || profile?.bio;
+
+  // About Image logic: AboutContent > Profile
+  const aboutImage = aboutContent?.aboutImageFile || aboutContent?.aboutImage || profile?.aboutImageFile || profile?.aboutImage;
+
+  // Calculate years of experience
+  const startYear = experiences.length > 0 
+    ? Math.min(...experiences.map((exp: any) => new Date(exp.startDate).getFullYear()))
+    : new Date().getFullYear();
+  const yearsExperience = new Date().getFullYear() - startYear;
+
+  const stats = [
+    { id: 1, label: t('hero.years_experience'), value: yearsExperience, suffix: "+" },
+    { id: 2, label: t('hero.projects_completed'), value: projects.length, suffix: "+" },
+    { id: 3, label: t('nav.certificates'), value: certificates.length, suffix: "" },
+    { id: 4, label: t('nav.skills'), value: skills.length, suffix: "+" },
+  ];
+
+  const scrollToProjects = () => {
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <section id="about" className="py-20 md:py-32 relative">
+    <section id="about" className="py-10 md:py-16 relative">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-center">
           {/* Image Side */}
           <motion.div
             className="relative"
@@ -18,49 +78,73 @@ export const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="relative aspect-square max-w-md mx-auto">
+            <div className="relative aspect-square max-w-sm mx-auto">
               {/* Main Image Container */}
               <div className="relative w-full h-full rounded-2xl overflow-hidden glass">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary">ES</span>
+                {/* Filter removed as requested */}
+                {aboutImage ? (
+                   <img 
+                    src={aboutImage} 
+                    alt="About Profile" 
+                    className="w-full h-full object-cover"
+                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-4xl font-bold text-primary">
+                          {profile?.fullName?.substring(0, 2).toUpperCase() || "ME"}
+                        </span>
+                      </div>
+                      <p className="text-sm">Profile Image</p>
                     </div>
-                    <p className="text-sm">Profile Image</p>
                   </div>
-                </div>
+                )}
               </div>
 
+              {/* Floating Stats - Years Experience */}
+              <motion.div 
+                className="absolute -left-4 top-10 p-4 rounded-xl glass border border-white/10 shadow-lg z-20"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ 
+                  opacity: { delay: 0.3, duration: 0.5 },
+                  x: { delay: 0.3, duration: 0.5 },
+                  y: { repeat: Infinity, duration: 3, ease: "easeInOut" }
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-primary">
+                    {inView ? <CountUp end={yearsExperience} duration={2.5} /> : 0}+
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('hero.years_experience')}</p>
+                </div>
+              </motion.div>
+
+              {/* Floating Stats - Projects */}
+              <motion.div 
+                className="absolute -right-4 bottom-10 p-4 rounded-xl glass border border-white/10 shadow-lg z-20"
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                animate={{ y: [0, 10, 0] }}
+                transition={{ 
+                  opacity: { delay: 0.5, duration: 0.5 },
+                  x: { delay: 0.5, duration: 0.5 },
+                  y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
+                }}
+              >
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-primary">
+                    {inView ? <CountUp end={projects.length} duration={2.5} /> : 0}+
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('hero.projects_completed')}</p>
+                </div>
+              </motion.div>
+
               {/* Decorative Elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 border-2 border-primary/30 rounded-2xl" />
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-primary/10 rounded-2xl blur-2xl" />
-              
-              {/* Magnet Lines Effect */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
-                <motion.circle
-                  cx="50%"
-                  cy="50%"
-                  r="45%"
-                  stroke="hsl(174 100% 41% / 0.1)"
-                  strokeWidth="1"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  transition={{ duration: 2 }}
-                />
-                <motion.circle
-                  cx="50%"
-                  cy="50%"
-                  r="48%"
-                  stroke="hsl(174 100% 41% / 0.05)"
-                  strokeWidth="1"
-                  fill="none"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  transition={{ duration: 2, delay: 0.3 }}
-                />
-              </svg>
+              <div className="absolute -top-4 -right-4 w-24 h-24 border-2 border-primary/30 rounded-2xl -z-10" />
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-primary/10 rounded-2xl blur-2xl -z-10" />
             </div>
           </motion.div>
 
@@ -71,42 +155,45 @@ export const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-4">
-              About Me
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-6">
-              {aboutData.subtitle}
-            </h2>
-            <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-              {aboutData.description}
-            </p>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              {aboutData.longDescription}
-            </p>
+            <div className="mb-6">
+              <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-3">
+                {t('nav.about')}
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-3">
+                {t('sections.about.title')}
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                {t('sections.about.subtitle')}
+              </p>
+            </div>
+            
+            {shortDesc && <h3 className="text-xl font-bold mb-3 text-primary">{shortDesc}</h3>}
+            <div 
+              className="text-muted-foreground text-base mb-6 leading-relaxed prose dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: longDesc || '' }}
+            />
+
+            {/* Social Icons */}
+            <div className="flex gap-4 mb-8">
+              {socialLinks.map((link: any) => {
+                const Icon = socialIcons[link.platform.toLowerCase()] || LinkIcon;
+                return (
+                  <motion.a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 rounded-full bg-card border border-border hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.a>
+                );
+              })}
+            </div>
 
             {/* Stats */}
-            <div ref={ref} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {aboutData.stats.map((stat, index) => (
-                <motion.div
-                  key={stat.id}
-                  className="text-center p-4 rounded-xl bg-card border border-border"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <p className="text-3xl md:text-4xl font-bold text-primary mb-1">
-                    {inView ? (
-                      <CountUp end={stat.value} duration={2.5} />
-                    ) : (
-                      0
-                    )}
-                    {stat.suffix}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
         </div>
       </div>

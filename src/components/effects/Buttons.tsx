@@ -6,13 +6,15 @@ interface ShinyButtonProps {
   className?: string;
   onClick?: () => void;
   variant?: 'primary' | 'secondary' | 'outline';
+  disabled?: boolean;
 }
 
 export const ShinyButton = ({ 
   children, 
   className = '', 
   onClick,
-  variant = 'primary' 
+  variant = 'primary',
+  disabled = false
 }: ShinyButtonProps) => {
   const baseStyles = "relative overflow-hidden px-6 py-3 md:px-8 md:py-4 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 cursor-pointer";
   
@@ -26,6 +28,7 @@ export const ShinyButton = ({
     <motion.button
       className={`${baseStyles} ${variants[variant]} ${className}`}
       onClick={onClick}
+      disabled={disabled}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >

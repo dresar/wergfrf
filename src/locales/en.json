@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "skills": "Skills",
+    "experience": "Experience",
+    "projects": "Projects",
+    "education": "Education",
+    "certificates": "Certificates",
+    "contact": "Contact"
+  },
+  "hero": {
+    "greeting": "Hello, I'm",
+    "role_default": "Developer",
+    "description_default": "I'm a passionate developer and designer creating beautiful, functional digital experiences that make a difference.",
+    "download_resume": "Download Resume",
+    "view_work": "View Work",
+    "projects_completed": "Projects Completed",
+    "years_experience": "Years Experience"
+  },
+  "sections": {
+    "about": {
+      "title": "About Me",
+      "subtitle": "Get to know more about my journey and interests"
+    },
+    "skills": {
+      "title": "Technical Skills",
+      "subtitle": "Technologies and tools I use to build solutions"
+    },
+    "experience": {
+      "title": "Work Experience",
+      "subtitle": "My professional journey and roles I've held"
+    },
+    "projects": {
+      "title": "Featured Projects",
+      "subtitle": "Some of the best work I've done"
+    },
+    "education": {
+      "title": "Education History",
+      "subtitle": "My academic background and qualifications"
+    },
+    "certificates": {
+      "title": "Certifications",
+      "subtitle": "Professional recognition and learning achievements"
+    },
+    "contact": {
+      "title": "Contact Me",
+      "subtitle": "Let's discuss how we can work together"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  }
+}

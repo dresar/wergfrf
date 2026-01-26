@@ -140,7 +140,91 @@
   }
 }
 
+@layer components {
+  .neon-border {
+    @apply border border-primary/30 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)];
+  }
+
+  .neon-border-purple {
+    @apply border border-accent/30 shadow-[0_0_15px_-3px_hsl(var(--accent)/0.3)];
+  }
+
+  .neon-text {
+    @apply text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)];
+  }
+
+  .neon-text-purple {
+    @apply text-accent drop-shadow-[0_0_10px_hsl(var(--accent)/0.5)];
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary to-accent;
+  }
+
+  .gradient-primary-text {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 hover:-translate-y-0.5;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground;
+  }
+
+  .sidebar-item-active {
+    @apply bg-primary/10 text-primary border-l-2 border-primary;
+  }
+
+  .stat-card {
+    @apply glass rounded-xl p-5 card-hover;
+  }
+
+  .table-row-hover {
+    @apply transition-colors hover:bg-muted/50;
+  }
+
+  .badge-success {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+
+  .badge-warning {
+    @apply bg-warning/20 text-warning border border-warning/30;
+  }
+
+  .badge-destructive {
+    @apply bg-destructive/20 text-destructive border border-destructive/30;
+  }
+
+  .badge-primary {
+    @apply bg-primary/20 text-primary border border-primary/30;
+  }
+
+  .badge-muted {
+    @apply bg-muted text-muted-foreground border border-border;
+  }
+
+  .input-glass {
+    @apply bg-muted/50 border-border/50 focus:border-primary focus:ring-primary/20;
+  }
+
+  .btn-neon {
+    @apply bg-primary text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_25px_-3px_hsl(var(--primary)/0.7)] transition-all duration-300;
+  }
+
+  .btn-neon-purple {
+    @apply bg-accent text-accent-foreground shadow-[0_0_20px_-5px_hsl(var(--accent)/0.5)] hover:shadow-[0_0_25px_-3px_hsl(var(--accent)/0.7)] transition-all duration-300;
+  }
 @layer utilities {
+  .bg-bar-blue-500 { background-color: #3b82f6; }
+  .bg-bar-green-500 { background-color: #22c55e; }
+  .bg-bar-purple-500 { background-color: #a855f7; }
+  .bg-bar-orange-500 { background-color: #f97316; }
+  .bg-bar-pink-500 { background-color: #ec4899; }
+  .bg-bar-cyan-500 { background-color: #06b6d4; }
+  .bg-bar-yellow-500 { background-color: #eab308; }
+}
   .glass {
     @apply bg-card/60 backdrop-blur-xl border border-border/50;
   }

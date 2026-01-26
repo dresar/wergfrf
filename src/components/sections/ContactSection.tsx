@@ -1,22 +1,55 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter, Instagram } from 'lucide-react';
-import { contactData } from '@/data/portfolioData';
+import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter, Instagram, Loader2, Facebook, Youtube, Globe, Link as LinkIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useProfile } from '@/hooks/useProfile';
+import { useSocialLinks } from '@/hooks/useSocialLinks';
+import { useMutation } from '@tanstack/react-query';
+import { messagesAPI } from '@/services/api';
 import { ShinyButton } from '@/components/effects/Buttons';
+import { type SocialLink } from '@/store/adminStore';
+import { toast } from 'sonner';
 
-const socialIcons: Record<string, React.ElementType> = {
+const socialIcons: Record<string, any> = {
   github: Github,
   linkedin: Linkedin,
   twitter: Twitter,
   instagram: Instagram,
+  facebook: Facebook,
+  youtube: Youtube,
+  email: Mail,
+  website: Globe,
+  other: LinkIcon,
 };
 
 export const ContactSection = () => {
+  const { t } = useTranslation();
+  const { profile } = useProfile();
+  const { socialLinks } = useSocialLinks();
+  const normalizedSocialLinks = (socialLinks ?? []) as SocialLink[];
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: '',
+  });
+
+  const { mutate: sendMessage, isPending: isSending } = useMutation({
+    mutationFn: messagesAPI.create,
+    onSuccess: () => {
+      toast.success('Message sent successfully! I will get back to you soon.');
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+      toast.error('Failed to send message. Please try again later.');
+    },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -25,28 +58,32 @@ export const ContactSection = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Form submission logic would go here
-    console.log('Form submitted:', formData);
+    sendMessage({
+      senderName: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+    });
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative bg-card/30">
+    <section id="contact" className="py-12 md:py-20 relative bg-card/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-4">
-            Contact
+          <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-3">
+            {t('nav.contact')}
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-4">
-            Get In Touch
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-3">
+            {t('sections.contact.title')}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Have a project in mind or just want to say hello? I'd love to hear from you.
+            {t('sections.contact.subtitle')}
           </p>
         </motion.div>
 
@@ -85,7 +122,7 @@ export const ContactSection = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                    placeholder="john@example.com"
+                    placeholder="your.email@domain.com"
                     required
                   />
                 </div>
@@ -123,9 +160,13 @@ export const ContactSection = () => {
                 />
               </div>
 
-              <ShinyButton variant="primary" className="w-full">
-                <Send className="w-4 h-4 mr-2 inline" />
-                Send Message
+              <ShinyButton variant="primary" className="w-full" disabled={isSending}>
+                {isSending ? (
+                  <Loader2 className="w-4 h-4 mr-2 inline animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2 inline" />
+                )}
+                {isSending ? 'Sending...' : 'Send Message'}
               </ShinyButton>
             </form>
           </motion.div>
@@ -145,8 +186,8 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <a href={`mailto:${contactData.email}`} className="font-medium hover:text-primary transition-colors">
-                    {contactData.email}
+                  <a href={`mailto:${profile?.email || ''}`} className="font-medium hover:text-primary transition-colors">
+                    {profile?.email || 'Not available'}
                   </a>
                 </div>
               </div>
@@ -157,8 +198,8 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <a href={`tel:${contactData.phone}`} className="font-medium hover:text-primary transition-colors">
-                    {contactData.phone}
+                  <a href={`tel:${profile?.phone || ''}`} className="font-medium hover:text-primary transition-colors">
+                    {profile?.phone || 'Not available'}
                   </a>
                 </div>
               </div>
@@ -169,7 +210,7 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{contactData.location}</p>
+                  <p className="font-medium">{profile?.location || 'Not available'}</p>
                 </div>
               </div>
             </div>
@@ -178,8 +219,8 @@ export const ContactSection = () => {
             <div>
               <p className="text-sm text-muted-foreground mb-4">Follow me on social media</p>
               <div className="flex gap-3">
-                {contactData.socialLinks.map((social) => {
-                  const Icon = socialIcons[social.icon] || Github;
+                {normalizedSocialLinks.map((social) => {
+                  const Icon = socialIcons[(social.platform || '').toLowerCase()] || Github;
                   return (
                     <motion.a
                       key={social.id}

@@ -1,19 +1,41 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sun, Moon } from 'lucide-react';
-import { navItems } from '@/data/portfolioData';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'react-i18next';
+import { useProfile } from '@/hooks/useProfile';
+import { useSettings } from '@/hooks/useSettings';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+
+const navItems = [
+  { id: 'home', label: 'nav.home', href: '#home' },
+  { id: 'about', label: 'nav.about', href: '#about' },
+  { id: 'education', label: 'nav.education', href: '#education' },
+  { id: 'skills', label: 'nav.skills', href: '#skills' },
+  { id: 'projects', label: 'nav.projects', href: '#projects' },
+  { id: 'experience', label: 'nav.experience', href: '#experience' },
+  { id: 'certificates', label: 'nav.certificates', href: '#certificates' },
+  { id: 'contact', label: 'nav.contact', href: '#contact' },
+];
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
+  const { profile } = useProfile();
+  const { settings } = useSettings();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Determine Logo Text
+  const logoText = settings?.siteName || profile?.fullName?.split(' ')[0] || 'Portfolio';
+  const logoFirstLetter = logoText.charAt(0);
+  const logoRest = logoText.slice(1);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,76 +88,72 @@ export const Header = () => {
             className="text-xl md:text-2xl font-heading font-bold"
             whileHover={{ scale: 1.05 }}
           >
-            <span className="text-primary">E</span>ka
+            <span className="text-primary">{logoFirstLetter}</span>{logoRest}
             <span className="text-primary">.</span>
           </motion.a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 p-1.5 rounded-full border border-border/40 bg-background/50 backdrop-blur-md shadow-sm">
             {navItems.map((item) => (
               <motion.button
                 key={item.id}
                 onClick={() => scrollToSection(item.href)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors relative ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors relative ${
                   activeSection === item.href.slice(1)
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {item.label}
+                {t(item.label)}
                 {activeSection === item.href.slice(1) && (
                   <motion.div
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                    className="absolute inset-0 rounded-full border border-primary/20"
                     layoutId="activeIndicator"
+                    transition={{ duration: 0.3 }}
                   />
                 )}
               </motion.button>
             ))}
-          </nav>
+            
+            <div className="w-px h-6 bg-border mx-2" />
 
-          {/* Theme Toggle & Mobile Menu */}
-          <div className="flex items-center gap-2">
-            {/* Theme Toggle */}
-            {mounted && (
-              <motion.button
+            <div className="flex items-center gap-1 pr-1">
+              <LanguageSwitcher />
+              <button
                 onClick={toggleTheme}
-                className="p-2.5 rounded-xl glass hover:bg-primary/10 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="p-2 rounded-full hover:bg-secondary transition-colors"
                 aria-label="Toggle theme"
               >
-                <AnimatePresence mode="wait" initial={false}>
-                  {resolvedTheme === 'dark' ? (
-                    <motion.div
-                      key="sun"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Sun className="w-5 h-5 text-primary" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="moon"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Moon className="w-5 h-5 text-primary" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            )}
+                {mounted && (theme === 'dark' || resolvedTheme === 'dark') ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          </nav>
 
-            {/* Mobile Menu Button */}
+          {/* Mobile Menu Button */}
+          <div className="flex items-center gap-4 md:hidden">
+            <LanguageSwitcher />
             <button
-              className="md:hidden p-2 text-foreground"
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
+              aria-label="Toggle theme"
+            >
+              {mounted && (theme === 'dark' || resolvedTheme === 'dark') ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+
+            <button
               onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
+              aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -147,71 +165,49 @@ export const Header = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-[60] md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md md:hidden"
           >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-background/95 backdrop-blur-xl"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            {/* Close Button */}
-            <button
-              className="absolute top-5 right-4 p-2 text-foreground z-10"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            {/* Menu Items */}
-            <nav className="relative h-full flex flex-col items-center justify-center gap-6">
-              {navItems.map((item, index) => (
-                <motion.button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.href)}
-                  className={`text-2xl font-heading font-semibold ${
-                    activeSection === item.href.slice(1)
-                      ? 'text-primary'
-                      : 'text-muted-foreground'
-                  }`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.05 }}
+            <div className="flex flex-col h-full p-4">
+              <div className="flex items-center justify-between mb-8">
+                <span className="text-xl font-heading font-bold">
+                  <span className="text-primary">{logoFirstLetter}</span>{logoRest}
+                  <span className="text-primary">.</span>
+                </span>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
+                  aria-label="Close menu"
                 >
-                  {item.label}
-                </motion.button>
-              ))}
-              
-              {/* Theme Toggle in Mobile Menu */}
-              {mounted && (
-                <motion.button
-                  onClick={toggleTheme}
-                  className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl glass"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: navItems.length * 0.05 }}
-                >
-                  {resolvedTheme === 'dark' ? (
-                    <>
-                      <Sun className="w-5 h-5 text-primary" />
-                      <span className="text-muted-foreground">Light Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-5 h-5 text-primary" />
-                      <span className="text-muted-foreground">Dark Mode</span>
-                    </>
-                  )}
-                </motion.button>
-              )}
-            </nav>
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <nav className="flex flex-col gap-4 flex-1 justify-center items-center">
+                {navItems.map((item, index) => (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.href)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`text-2xl font-heading font-bold transition-colors ${
+                      activeSection === item.href.slice(1)
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t(item.label)}
+                  </motion.button>
+                ))}
+              </nav>
+
+              <div className="text-center text-sm text-muted-foreground mt-8">
+                © {new Date().getFullYear()} {profile?.fullName || 'Eka Syarif Maulana'}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

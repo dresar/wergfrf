@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "about": "Tentang",
+    "skills": "Keahlian",
+    "experience": "Pengalaman",
+    "projects": "Proyek",
+    "education": "Pendidikan",
+    "certificates": "Sertifikat",
+    "contact": "Kontak"
+  },
+  "hero": {
+    "greeting": "Halo, Saya",
+    "role_default": "Pengembang",
+    "description_default": "Saya seorang pengembang dan desainer yang bersemangat menciptakan pengalaman digital yang indah dan fungsional.",
+    "download_resume": "Unduh Resume",
+    "view_work": "Lihat Karya",
+    "projects_completed": "Proyek Selesai",
+    "years_experience": "Tahun Pengalaman"
+  },
+  "sections": {
+    "about": {
+      "title": "Tentang Saya",
+      "subtitle": "Kenali lebih dekat perjalanan dan minat saya"
+    },
+    "skills": {
+      "title": "Keahlian Teknis",
+      "subtitle": "Teknologi dan alat yang saya gunakan untuk membangun solusi"
+    },
+    "experience": {
+      "title": "Pengalaman Kerja",
+      "subtitle": "Perjalanan profesional dan peran yang pernah saya emban"
+    },
+    "projects": {
+      "title": "Proyek Unggulan",
+      "subtitle": "Beberapa hasil karya terbaik yang pernah saya kerjakan"
+    },
+    "education": {
+      "title": "Riwayat Pendidikan",
+      "subtitle": "Latar belakang akademis dan kualifikasi saya"
+    },
+    "certificates": {
+      "title": "Sertifikasi",
+      "subtitle": "Pengakuan profesional dan pencapaian pembelajaran"
+    },
+    "contact": {
+      "title": "Hubungi Saya",
+      "subtitle": "Mari diskusikan bagaimana kita bisa bekerja sama"
+    }
+  },
+  "common": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah"
+  }
+}

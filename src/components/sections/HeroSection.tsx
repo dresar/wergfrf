@@ -1,21 +1,89 @@
 import { motion } from 'framer-motion';
-import { Download, ArrowRight, Linkedin, Github, Twitter, Instagram, CheckCircle, Briefcase } from 'lucide-react';
-import { heroData } from '@/data/portfolioData';
+import { Download, ArrowRight, Link as LinkIcon, Github, Linkedin, Twitter, Instagram, Facebook, Youtube, Mail, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ParticlesBackground } from '@/components/effects/ParticlesBackground';
 import { TypewriterText } from '@/components/effects/TypewriterText';
 import { ShinyButton, BorderBeamButton } from '@/components/effects/Buttons';
+import { useProfile } from '@/hooks/useProfile';
+import { useAdminStore } from '@/store/adminStore';
+import { useSocialLinks } from '@/hooks/useSocialLinks';
+import { Loader2 } from 'lucide-react';
+import { useProjects } from '@/hooks/useProjects';
+import { normalizeMediaUrl } from '@/lib/utils';
+import { useExperience } from '@/hooks/useExperience';
+import { CheckCircle, Briefcase } from 'lucide-react';
+
+const socialIcons: Record<string, any> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+  instagram: Instagram,
+  facebook: Facebook,
+  youtube: Youtube,
+  email: Mail,
+  website: Globe,
+  other: LinkIcon,
+};
 
 export const HeroSection = () => {
+  const { t, i18n } = useTranslation();
+  const { profile, isLoading: profileLoading } = useProfile();
+  const { homeContent } = useAdminStore();
+  const { socialLinks = [], isLoading: linksLoading } = useSocialLinks();
+  const { projects = [] } = useProjects();
+  const { experiences = [] } = useExperience();
+
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const socialLinks = [
-    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: Github, href: 'https://github.com', label: 'GitHub' },
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-  ];
+  if (profileLoading || linksLoading) {
+    return (
+      <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <ParticlesBackground />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </section>
+    );
+  }
+
+  // Determine localized content
+  const currentLang = i18n.language === 'en' ? 'en' : 'id';
+  
+  // Use HomeContent if available, otherwise fallback to Profile or defaults
+  const greeting = homeContent 
+    ? (currentLang === 'en' ? homeContent.greeting_en : homeContent.greeting_id) || homeContent.greeting_id
+    : profile?.greeting;
+
+  // Parse roles
+  let roles: string[] = ['Developer', 'Designer'];
+  const rolesSource = homeContent 
+    ? (currentLang === 'en' ? homeContent.roles_en : homeContent.roles_id) || homeContent.roles_id
+    : profile?.role;
+
+  try {
+    if (rolesSource) {
+      if (Array.isArray(rolesSource)) {
+        roles = rolesSource;
+      } else if (typeof rolesSource === 'string' && rolesSource.startsWith('[')) {
+        roles = JSON.parse(rolesSource);
+      } else {
+        roles = [rolesSource as string];
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse roles', e);
+    roles = ['Developer'];
+  }
+  
+  // Hero Image logic: HomeContent > Profile
+  const heroImageRaw = homeContent?.heroImageFile || homeContent?.heroImage || profile?.heroImageFile || profile?.heroImage;
+  const heroImage = normalizeMediaUrl(heroImageRaw);
+
+  // Calculate years of experience
+  const startYear = experiences.length > 0 
+    ? Math.min(...experiences.map((exp: any) => new Date(exp.startDate).getFullYear()))
+    : new Date().getFullYear();
+  const yearsExperience = new Date().getFullYear() - startYear;
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
@@ -37,7 +105,7 @@ export const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              Halo, Saya <span className="text-2xl">👋</span>
+              {greeting || t('hero.greeting')} <span className="text-2xl">👋</span>
             </motion.p>
 
             {/* Name with Gradient */}
@@ -48,7 +116,7 @@ export const HeroSection = () => {
               transition={{ delay: 0.3 }}
             >
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-text-shimmer bg-[length:200%_100%]">
-                {heroData.name}
+                {profile?.fullName || "Eka Syarif Maulana"}
               </span>
             </motion.h1>
 
@@ -60,19 +128,18 @@ export const HeroSection = () => {
               transition={{ delay: 0.4 }}
             >
               <TypewriterText 
-                texts={heroData.professions.map(p => p.title)} 
+                texts={roles.length > 0 ? roles : [t('hero.role_default')]} 
               />
             </motion.div>
 
             {/* Description */}
-            <motion.p
-              className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-8"
+            <motion.div
+              className="text-muted-foreground text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-8 prose prose-invert"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-            >
-              {heroData.description}
-            </motion.p>
+              dangerouslySetInnerHTML={{ __html: profile?.bio || t('hero.description_default') }}
+            />
 
             {/* CTA Buttons */}
             <motion.div
@@ -81,12 +148,16 @@ export const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <ShinyButton variant="primary">
-                <Download className="w-4 h-4 mr-2 inline" />
-                Unduh Resume
-              </ShinyButton>
+              {(profile?.resumeFile || profile?.resumeUrl) && (
+                <a href={profile.resumeFile || profile.resumeUrl} target="_blank" rel="noopener noreferrer">
+                  <ShinyButton variant="primary">
+                    <Download className="w-4 h-4 mr-2 inline" />
+                    {t('hero.download_resume')}
+                  </ShinyButton>
+                </a>
+              )}
               <BorderBeamButton onClick={scrollToProjects}>
-                Lihat Karya
+                {t('hero.view_work')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </BorderBeamButton>
             </motion.div>
@@ -98,23 +169,26 @@ export const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-11 h-11 rounded-full glass flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 transition-all duration-300"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  aria-label={social.label}
-                >
-                  <social.icon className="w-5 h-5" />
-                </motion.a>
-              ))}
+              {socialLinks.map((social: any, index: number) => {
+                const Icon = socialIcons[social.icon] || LinkIcon;
+                return (
+                  <motion.a
+                    key={social.id}
+                    href={social.icon === 'email' ? `mailto:${social.url}` : social.url}
+                    target={social.icon === 'email' ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    className="w-11 h-11 rounded-full glass flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 transition-all duration-300"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 + index * 0.1 }}
+                    aria-label={social.platform}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.a>
+                );
+              })}
             </motion.div>
           </motion.div>
 
@@ -160,11 +234,21 @@ export const HeroSection = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
             >
-              <img
-                src="https://placehold.co/600x800/1a1a1a/00D2D3?text=Your+Photo"
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              {heroImage ? (
+                <img
+                  src={heroImage}
+                  alt={profile?.fullName || "Profile"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-card text-muted-foreground">
+                  <div className="text-center">
+                    <span className="text-6xl font-bold opacity-20">
+                      {profile?.fullName?.substring(0, 2).toUpperCase() || "??"}
+                    </span>
+                  </div>
+                </div>
+              )}
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
             </motion.div>
@@ -180,8 +264,10 @@ export const HeroSection = () => {
                   <CheckCircle className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xl md:text-2xl font-bold text-foreground">50+</p>
-                  <p className="text-xs text-muted-foreground">Project Selesai</p>
+                  <p className="text-xl md:text-2xl font-bold text-foreground">
+                    {profile?.stats_project_count || `${projects.length}+`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('hero.projects_completed')}</p>
                 </div>
               </div>
             </motion.div>
@@ -197,8 +283,10 @@ export const HeroSection = () => {
                   <Briefcase className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-xl md:text-2xl font-bold text-foreground">5+</p>
-                  <p className="text-xs text-muted-foreground">Tahun Pengalaman</p>
+                  <p className="text-xl md:text-2xl font-bold text-foreground">
+                    {profile?.stats_exp_years || `${yearsExperience}+`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t('hero.years_experience')}</p>
                 </div>
               </div>
             </motion.div>

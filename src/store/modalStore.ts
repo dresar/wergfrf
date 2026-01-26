@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Project, Education, Certificate } from '@/data/portfolioData';
+import type { Project, Education, Certificate } from '@/store/adminStore';
 
 export type ModalType = 'project' | 'education-gallery' | 'education-document' | 'certificate' | null;
 

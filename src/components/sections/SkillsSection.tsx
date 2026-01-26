@@ -1,117 +1,135 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { skillsData, techStackData } from '@/data/portfolioData';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { useSkills } from '@/hooks/useSkills';
+import { api } from '@/lib/api';
 import { TiltedCard } from '@/components/effects/Cards';
-import { Code2, Palette, Users, Globe } from 'lucide-react';
+import { Code2, Palette, Users, Globe, Loader2, Database, Cloud } from 'lucide-react';
 
-const categories = [
-  { id: 'technical', label: 'Technical', icon: Code2 },
-  { id: 'design', label: 'Design', icon: Palette },
-  { id: 'soft', label: 'Soft Skills', icon: Users },
-  { id: 'language', label: 'Languages', icon: Globe },
-];
+interface SkillCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+const getIconForCategory = (slug: string) => {
+  if (slug.includes('front') || slug.includes('back') || slug.includes('dev')) return Code2;
+  if (slug.includes('design') || slug.includes('ui') || slug.includes('ux')) return Palette;
+  if (slug.includes('soft')) return Users;
+  if (slug.includes('lang')) return Globe;
+  if (slug.includes('data')) return Database;
+  if (slug.includes('cloud') || slug.includes('ops')) return Cloud;
+  return Code2;
+};
 
 export const SkillsSection = () => {
-  const [activeTab, setActiveTab] = useState('technical');
+  const { t } = useTranslation();
+  const { skills = [], isLoading: isSkillsLoading } = useSkills();
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
+  
+  const { data: categories = [], isLoading: isCategoriesLoading } = useQuery({
+    queryKey: ['skillCategories'],
+    queryFn: async () => {
+      const res = await api.get<SkillCategory[]>('/skill-categories/');
+      return res.data;
+    }
+  });
 
-  const filteredSkills = skillsData.filter((skill) => skill.category === activeTab);
+  const [activeTab, setActiveTab] = useState<number | null>(null);
+
+  // Set initial active tab when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && activeTab === null) {
+      setActiveTab(categories[0].id);
+    }
+  }, [categories, activeTab]);
+
+  const filteredSkills = activeTab 
+    ? skills.filter((skill) => skill.category === activeTab)
+    : [];
+
+  if (isSkillsLoading || isCategoriesLoading) {
+    return (
+      <section id="skills" className="py-20 md:py-32 relative bg-card/30 flex justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </section>
+    );
+  }
 
   return (
-    <section id="skills" className="py-20 md:py-32 relative bg-card/30">
+    <section id="skills" className="py-12 md:py-20 relative bg-card/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-4">
-            Skills
+          <span className="inline-block px-4 py-1 text-sm font-medium rounded-full bg-primary/10 text-primary mb-3">
+            {t('nav.skills')}
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-4">
-            My Expertise
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-3">
+            {t('sections.skills.title')}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            A comprehensive overview of my technical abilities, design skills, and soft skills.
+            {t('sections.skills.subtitle')}
           </p>
         </motion.div>
 
         {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((category) => (
-            <motion.button
-              key={category.id}
-              onClick={() => setActiveTab(category.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeTab === category.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <category.icon className="w-4 h-4" />
-              {category.label}
-            </motion.button>
-          ))}
+          {categories.map((category) => {
+            const Icon = getIconForCategory(category.slug);
+            return (
+              <motion.button
+                key={category.id}
+                onClick={() => setActiveTab(category.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === category.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Icon className="w-4 h-4" />
+                {category.name}
+              </motion.button>
+            );
+          })}
         </div>
 
         {/* Skills Grid */}
-        <div ref={ref} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-          {filteredSkills.map((skill, index) => (
-            <TiltedCard key={skill.id}>
-              <div className="p-6 rounded-xl bg-card border border-border h-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-lg">{skill.name}</h4>
-                  <span className="text-primary font-bold">{skill.level}%</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-primary to-[hsl(180,80%,50%)] rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: inView ? `${skill.level}%` : 0 }}
-                    transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
-                  />
-                </div>
-              </div>
-            </TiltedCard>
-          ))}
-        </div>
-
-        {/* Tech Stack */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-2xl font-heading font-bold text-center mb-8">Tech Stack</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            {techStackData.map((tech, index) => (
-              <motion.div
-                key={tech.id}
-                className="group relative"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.1, y: -5 }}
-              >
-                <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-card border border-border group-hover:border-primary group-hover:glow-primary transition-all duration-300">
-                  <span className="text-2xl">{tech.icon}</span>
-                </div>
-                {/* Tooltip */}
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <div className="px-3 py-1 rounded-lg bg-popover text-popover-foreground text-sm whitespace-nowrap shadow-lg">
-                    {tech.name}
+        <div ref={ref} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-16">
+          {filteredSkills.length > 0 ? (
+            filteredSkills.map((skill, index) => (
+              <TiltedCard key={skill.id}>
+                <div className="p-4 rounded-xl bg-card border border-border h-full hover:border-primary/50 transition-colors">
+                  <div className="flex flex-col items-center text-center gap-2 mb-3">
+                    <h4 className="font-semibold text-base">{skill.name}</h4>
+                    <span className="text-primary font-bold text-sm">{skill.percentage}%</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden w-full">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-primary to-[hsl(180,80%,50%)] rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: inView ? `${skill.percentage}%` : 0 }}
+                      transition={{ duration: 1, delay: index * 0.05, ease: "easeOut" }}
+                    />
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+              </TiltedCard>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              No skills found in this category.
+            </div>
+          )}
+        </div>
+
       </div>
     </section>
   );
