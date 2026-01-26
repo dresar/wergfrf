@@ -53,7 +53,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Project } from '@/store/adminStore';
 import { CategoryManager } from '@/components/admin/CategoryManager';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 // Sortable Item Component
 function SortableProjectCard({ 

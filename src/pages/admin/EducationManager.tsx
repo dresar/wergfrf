@@ -50,7 +50,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 50 }, (_, i) => currentYear - i);

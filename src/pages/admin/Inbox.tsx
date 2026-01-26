@@ -40,7 +40,7 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 const Inbox = () => {
   const {

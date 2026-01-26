@@ -32,7 +32,7 @@ import { normalizeMediaUrl } from '@/lib/utils';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 export default function BlogManager() {
   const navigate = useNavigate();

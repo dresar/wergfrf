@@ -44,7 +44,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@/components/ui/pagination';
 
 const WATemplateManager = () => {
   const { 
