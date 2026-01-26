@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
 import { useQuery } from '@tanstack/react-query';
 import { waTemplatesAPI } from '@/services/api';
@@ -15,13 +15,20 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { MessageCircle, Send, X } from 'lucide-react';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { MessageCircle, Send, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface WATemplate {
   id: number;
@@ -36,6 +43,7 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [openCombobox, setOpenCombobox] = useState(false);
 
   useEffect(() => {
     if (forceOpen) {
@@ -148,7 +156,7 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
       )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] w-[95vw]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-[#25D366]" />
@@ -163,18 +171,49 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
             {templates.length > 0 && (
               <div className="space-y-2">
                 <Label>Pilih Template</Label>
-                <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih topik pembicaraan..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map((template: WATemplate) => (
-                      <SelectItem key={template.id} value={template.id.toString()}>
-                        {template.template_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCombobox}
+                      className="w-full justify-between"
+                    >
+                      {selectedTemplate
+                        ? templates.find((t: WATemplate) => t.id.toString() === selectedTemplate)?.template_name
+                        : "Pilih topik pembicaraan..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Cari template..." />
+                      <CommandList>
+                        <CommandEmpty>Template tidak ditemukan.</CommandEmpty>
+                        <CommandGroup>
+                          {templates.map((template: WATemplate) => (
+                            <CommandItem
+                              key={template.id}
+                              value={template.template_name}
+                              onSelect={() => {
+                                handleTemplateChange(template.id.toString());
+                                setOpenCombobox(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedTemplate === template.id.toString() ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {template.template_name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
             

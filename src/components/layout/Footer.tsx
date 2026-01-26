@@ -1,17 +1,14 @@
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
-import { useSocialLinks } from '@/hooks/useSocialLinks';
+import { useTranslation } from 'react-i18next';
 import { useProfile } from '@/hooks/useProfile';
 import { useSettings } from '@/hooks/useSettings';
-import { useState } from 'react';
-import { FloatingWhatsApp } from '../effects/FloatingWhatsApp'; // Import FloatingWhatsApp logic/component if needed separately or trigger it
 
 export const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
-  const { socialLinks = [] } = useSocialLinks();
   const { profile } = useProfile();
   const { settings } = useSettings();
-  const [waModalOpen, setWaModalOpen] = useState(false);
 
   const logoText = settings?.siteName || profile?.fullName?.split(' ')[0] || 'Portfolio';
   const logoFirstLetter = logoText.charAt(0);
@@ -33,47 +30,12 @@ export const Footer = () => {
 
           {/* Copyright */}
           <p className="text-sm text-muted-foreground text-center">
-            © {currentYear} {profile?.fullName}. Made with{' '}
+            © {currentYear} {profile?.fullName}. {t('footer.made_with')}{' '}
             <Heart className="w-4 h-4 inline text-destructive mx-1" fill="currentColor" />
-            in Indonesia
+            {t('footer.in_indonesia')}
           </p>
-
-          {/* Quick Links */}
-          <div className="flex gap-4">
-            {socialLinks.slice(0, 4).map((social) => {
-              const isWhatsApp = (social.platform || '').toLowerCase() === 'whatsapp' || 
-                               social.url.includes('wa.me') || 
-                               social.url.includes('whatsapp.com');
-
-              if (isWhatsApp) {
-                return (
-                  <button
-                    key={social.id}
-                    onClick={() => setWaModalOpen(true)}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {social.platform}
-                  </button>
-                );
-              }
-
-              return (
-                <a
-                  key={social.id}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {social.platform}
-                </a>
-              );
-            })}
-          </div>
         </div>
       </div>
-
-      <FloatingWhatsApp forceOpen={waModalOpen} onClose={() => setWaModalOpen(false)} />
     </footer>
   );
 };

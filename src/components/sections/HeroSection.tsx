@@ -83,7 +83,21 @@ export const HeroSection = () => {
   const startYear = experiences.length > 0 
     ? Math.min(...experiences.map((exp: any) => new Date(exp.startDate).getFullYear()))
     : new Date().getFullYear();
-  const yearsExperience = new Date().getFullYear() - startYear;
+    
+  // Helper to safely parse stats
+  const parseStat = (val: string | null | undefined) => {
+    if (!val) return 0;
+    // Extract first number found
+    const match = String(val).match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+
+  const manualYearsExp = parseStat(profile?.stats_exp_years);
+  const calculatedYearsExp = new Date().getFullYear() - startYear;
+  const yearsExperience = manualYearsExp > 0 ? manualYearsExp : calculatedYearsExp;
+
+  const manualProjectCount = parseStat(profile?.stats_project_count);
+  const projectCount = manualProjectCount > 0 ? manualProjectCount : projects.length;
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
@@ -265,7 +279,7 @@ export const HeroSection = () => {
                 </div>
                 <div>
                   <p className="text-xl md:text-2xl font-bold text-foreground">
-                    {profile?.stats_project_count || `${projects.length}+`}
+                    {projectCount}+
                   </p>
                   <p className="text-xs text-muted-foreground">{t('hero.projects_completed')}</p>
                 </div>
@@ -284,7 +298,7 @@ export const HeroSection = () => {
                 </div>
                 <div>
                   <p className="text-xl md:text-2xl font-bold text-foreground">
-                    {profile?.stats_exp_years || `${yearsExperience}+`}
+                    {yearsExperience}+
                   </p>
                   <p className="text-xs text-muted-foreground">{t('hero.years_experience')}</p>
                 </div>

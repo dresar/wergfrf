@@ -16,8 +16,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
-import { ArrowLeft, Plus, Trash2, Upload, X, Link as LinkIcon, Youtube } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Upload, X, Link as LinkIcon, Youtube, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { useAI } from '@/hooks/useAI';
 import { Project, useAdminStore } from '@/store/adminStore';
 import { CategoryManager } from '@/components/admin/CategoryManager';
 
@@ -29,6 +31,7 @@ interface ProjectFormData {
   repoUrl: string;
   video_url: string;
   is_featured: boolean;
+  is_published: boolean;
   content: string;
   techStack: string; // Comma separated for input
 }
@@ -38,8 +41,10 @@ export default function ProjectForm() {
   const navigate = useNavigate();
   const { projects, addProject, updateProject, deleteImage } = useProjects();
   const { projectCategories } = useAdminStore();
+  const { generateContent, isGenerating: isAIGenerating } = useAI();
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [publishDate, setPublishDate] = useState<Date | undefined>(undefined);
   
   // Media handling
   const [coverImage, setCoverImage] = useState<File | null>(null);
@@ -51,6 +56,9 @@ export default function ProjectForm() {
   
   // Dynamic Links
   const [links, setLinks] = useState<{ label: string; url: string }[]>([]);
+
+  // Project Summaries (Manual Versions)
+  const [summaries, setSummaries] = useState<{ content: string; version: number }[]>([]);
 
   const isEditing = !!id;
   const existingProject = projects.find(p => p.id === Number(id));
@@ -64,6 +72,7 @@ export default function ProjectForm() {
       repoUrl: '',
       video_url: '',
       is_featured: false,
+      is_published: true,
       techStack: '',
       content: '',
     }
@@ -78,9 +87,14 @@ export default function ProjectForm() {
       setValue('repoUrl', existingProject.repoUrl || '');
       setValue('video_url', existingProject.video_url || '');
       setValue('is_featured', existingProject.is_featured || false);
+      setValue('is_published', existingProject.is_published !== undefined ? existingProject.is_published : true);
       setValue('techStack', existingProject.techStack?.join(', ') || '');
       setContent(existingProject.content || '');
       
+      if (existingProject.publish_at) {
+        setPublishDate(new Date(existingProject.publish_at));
+      }
+
       if (existingProject.links) {
         setLinks(existingProject.links);
       }
@@ -96,6 +110,26 @@ export default function ProjectForm() {
       }
     }
   }, [isEditing, existingProject, setValue]);
+
+  const handleGenerateDescription = async () => {
+    const title = watch('title');
+    const techStack = watch('techStack');
+    
+    if (!title) {
+        toast.error('Mohon isi judul proyek terlebih dahulu');
+        return;
+    }
+    
+    const prompt = techStack ? `${title} built with ${techStack}` : title;
+    
+    try {
+        const generated = await generateContent(prompt, 'professional', 'project_description');
+        setValue('description', generated);
+        toast.success('Description generated!');
+    } catch (e) {
+        console.error(e);
+    }
+  };
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -151,6 +185,20 @@ export default function ProjectForm() {
     setLinks(links.filter((_, i) => i !== index));
   };
 
+  const addSummary = () => {
+    setSummaries([...summaries, { content: '', version: summaries.length + 1 }]);
+  };
+
+  const updateSummary = (index: number, value: string) => {
+    const newSummaries = [...summaries];
+    newSummaries[index].content = value;
+    setSummaries(newSummaries);
+  };
+
+  const removeSummary = (index: number) => {
+    setSummaries(summaries.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (data: ProjectFormData) => {
     try {
       setIsLoading(true);
@@ -161,7 +209,20 @@ export default function ProjectForm() {
       formData.append('category', data.category);
       formData.append('content', content);
       formData.append('is_featured', String(data.is_featured));
+      formData.append('is_published', String(data.is_published));
       
+      if (publishDate) {
+        formData.append('publish_at', publishDate.toISOString());
+      } else {
+        // If explicitly cleared or null, we might want to send empty or handle it in backend
+        // But FormData usually ignores nulls or sends string "null". 
+        // Backend expects DateTime or null.
+        // If we want to UNSET publish_at, we might need to send something specific or just omit if blank=True null=True
+        // Actually, if we don't send it, Django might keep old value or default.
+        // Let's send empty string if undefined/null which Django often treats as null for DateTimeField with blank=True null=True
+        formData.append('publish_at', '');
+      }
+
       if (data.demoUrl) formData.append('demoUrl', data.demoUrl);
       if (data.repoUrl) formData.append('repoUrl', data.repoUrl);
       if (data.video_url) formData.append('video_url', data.video_url);
@@ -178,15 +239,18 @@ export default function ProjectForm() {
       // Process Links
       formData.append('links', JSON.stringify(links));
 
+      // Process Summaries
+      formData.append('summaries', JSON.stringify(summaries));
+
       // Ensure content is appended, even if empty string
       // The RichTextEditor state 'content' is used here
       formData.append('content', content || ''); 
 
-      // Log FormData content for debugging
-      console.log("FormData content:");
-      for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-      }
+      // Log FormData content for debugging (Commented out for production)
+      // console.log("FormData content:");
+      // for (let [key, value] of formData.entries()) {
+      //    console.log(`${key}: ${value}`);
+      // }
 
       // Files
       if (coverImage) {
@@ -207,7 +271,7 @@ export default function ProjectForm() {
       
       navigate('/admin/projects');
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       toast.error('Gagal menyimpan proyek');
     } finally {
       setIsLoading(false);
@@ -257,7 +321,20 @@ export default function ProjectForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Ringkasan Singkat</Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="description">Ringkasan Singkat</Label>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 text-xs text-primary"
+                    onClick={handleGenerateDescription}
+                    disabled={isAIGenerating}
+                >
+                    {isAIGenerating ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Sparkles className="w-3 h-3 mr-1"/>}
+                    Generate with AI
+                </Button>
+              </div>
               <Textarea 
                 id="description" 
                 {...register('description', { required: true })} 
@@ -275,13 +352,81 @@ export default function ProjectForm() {
               />
             </div>
 
-             <div className="flex items-center space-x-2 pt-2">
-              <Switch 
-                id="is_featured" 
-                checked={watch('is_featured')}
-                onCheckedChange={(checked) => setValue('is_featured', checked)}
-              />
-              <Label htmlFor="is_featured">Proyek Unggulan</Label>
+            {/* Project Summaries (Manual) */}
+            <div className="space-y-3 pt-4 border-t border-border/50">
+               <div className="flex justify-between items-center">
+                  <Label>Versi Ringkasan (Manual untuk AI Insight)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addSummary} className="gap-2">
+                    <Plus className="h-3 w-3" /> Tambah Versi
+                  </Button>
+               </div>
+               
+               {summaries.length === 0 && (
+                 <p className="text-sm text-muted-foreground italic">Belum ada ringkasan manual. Tambahkan untuk fitur 'AI Insight'.</p>
+               )}
+
+               <div className="space-y-3">
+                 {summaries.map((summary, index) => (
+                    <div key={index} className="p-3 border rounded-md bg-card relative group">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-mono text-muted-foreground">Versi {index + 1}</span>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => removeSummary(index)}
+                            >
+                                <X className="h-3 w-3" />
+                            </Button>
+                        </div>
+                        <Textarea 
+                            value={summary.content}
+                            onChange={(e) => updateSummary(index, e.target.value)}
+                            placeholder={`Ringkasan versi ${index + 1}...`}
+                            className="text-sm min-h-[80px]"
+                        />
+                    </div>
+                 ))}
+               </div>
+            </div>
+
+            <div className="space-y-4 pt-2 border-t border-border/50">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                 <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="is_featured" 
+                    checked={watch('is_featured')}
+                    onCheckedChange={(checked) => setValue('is_featured', checked)}
+                  />
+                  <Label htmlFor="is_featured">Proyek Unggulan</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="is_published" 
+                    checked={watch('is_published')}
+                    onCheckedChange={(checked) => setValue('is_published', checked)}
+                  />
+                  <Label htmlFor="is_published">Status Publikasi</Label>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="publish_at">Jadwal Publikasi (Opsional)</Label>
+                <Input
+                  id="publish_at"
+                  type="datetime-local"
+                  value={publishDate ? format(publishDate, "yyyy-MM-dd'T'HH:mm") : ''}
+                  onChange={(e) => {
+                    const date = e.target.value ? new Date(e.target.value) : undefined;
+                    setPublishDate(date);
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Biarkan kosong untuk langsung terbit (jika status publikasi aktif).
+                </p>
+              </div>
             </div>
           </div>
 
@@ -367,7 +512,12 @@ export default function ProjectForm() {
         {/* Detailed Content (Rich Text) */}
         <div className="space-y-2">
           <Label>Konten Detail (Teks Kaya)</Label>
-          <RichTextEditor content={content} onChange={setContent} />
+          <RichTextEditor 
+            content={content} 
+            onChange={setContent}
+            placeholder="Ceritakan detail menarik tentang proyek ini..."
+            context={`Judul Proyek: ${watch('title')}\nDeskripsi Singkat: ${watch('description')}\nTeknologi: ${watch('techStack')}`}
+          />
         </div>
 
         {/* URLs and Links */}

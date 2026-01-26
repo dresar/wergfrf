@@ -5,6 +5,7 @@ import { StatsCard } from '@/components/admin/StatsCard';
 import { VisitorChart } from '@/components/admin/VisitorChart';
 import { DeviceChart } from '@/components/admin/DeviceChart';
 import { ActivityFeed } from '@/components/admin/ActivityFeed';
+import { SystemStatus } from '@/components/admin/SystemStatus';
 import { useState, useEffect } from 'react';
 import { profileAPI, projectsAPI, experienceAPI } from '@/services/api';
 
@@ -120,14 +121,19 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <VisitorChart 
-            weeklyData={stats.weeklyVisitors} 
-            monthlyData={stats.monthlyVisitors}
-            title="Lalu Lintas Pengunjung" 
-          />
-          <DeviceChart data={stats.deviceStats} title="Rincian Perangkat" />
+        {/* Charts & Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <VisitorChart 
+              weeklyData={stats.weeklyVisitors} 
+              monthlyData={stats.monthlyVisitors}
+              title="Lalu Lintas Pengunjung" 
+            />
+          </div>
+          <div className="space-y-6">
+            <SystemStatus />
+            <DeviceChart data={stats.deviceStats} title="Rincian Perangkat" />
+          </div>
         </div>
 
         {/* Activity Feed */}

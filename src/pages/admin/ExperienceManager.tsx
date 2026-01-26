@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -52,6 +52,8 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 interface Experience {
   id: number;
   role: string;
@@ -98,6 +100,10 @@ const ExperienceManager = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [experienceToDelete, setExperienceToDelete] = useState<number | null>(null);
   const [editingExperience, setEditingExperience] = useState<Partial<Experience> | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   const handleSave = () => {
     if (!editingExperience) return;
@@ -160,11 +166,21 @@ const ExperienceManager = () => {
     setDialogOpen(true);
   };
 
-  const sortedExperiences = [...experiences].sort((a, b) => {
-    if (a.isCurrent && !b.isCurrent) return -1;
-    if (!a.isCurrent && b.isCurrent) return 1;
-    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-  });
+  const sortedExperiences = useMemo(() => {
+    return [...experiences].sort((a, b) => {
+      if (a.isCurrent && !b.isCurrent) return -1;
+      if (!a.isCurrent && b.isCurrent) return 1;
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
+  }, [experiences]);
+
+  const totalPages = Math.ceil(sortedExperiences.length / ITEMS_PER_PAGE);
+  const paginatedExperiences = useMemo(() => {
+    return sortedExperiences.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  }, [sortedExperiences, currentPage]);
 
   const FormContent = () => (
     <div className="space-y-6">
@@ -324,7 +340,7 @@ const ExperienceManager = () => {
           />
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {sortedExperiences.map((exp, index) => (
+            {paginatedExperiences.map((exp, index) => (
               <motion.div
                 key={exp.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -383,6 +399,15 @@ const ExperienceManager = () => {
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Pagination */}
+        {sortedExperiences.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
 
         {/* Edit Dialog/Drawer */}

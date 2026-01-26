@@ -20,6 +20,12 @@ export interface ProjectLink {
   url: string;
 }
 
+export interface ProjectSummary {
+  id?: number;
+  content: string;
+  version: number;
+}
+
 export interface ProjectCategory {
   id: number;
   name: string;
@@ -57,6 +63,8 @@ export interface Project {
   order?: number;
   createdAt: string;
   updatedAt: string;
+  is_published?: boolean;
+  publish_at?: string | null;
 }
 
 export interface Message {
@@ -144,6 +152,9 @@ export interface Profile {
   phone?: string | null;
   stats_project_count?: string | null;
   stats_exp_years?: string | null;
+  total_certificates?: number;
+  total_skills?: number;
+  map_embed_url?: string | null;
 }
 
 export interface SiteSettings {
@@ -151,6 +162,7 @@ export interface SiteSettings {
   theme: 'dark' | 'light';
   seoTitle: string;
   seoDesc: string;
+  cdn_url?: string;
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;

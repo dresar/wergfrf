@@ -69,7 +69,7 @@ export const CertificatesSection = () => {
   }
 
   return (
-    <section id="certificates" className="py-12 md:py-20 relative">
+    <section id="certificates" className="py-12 md:py-16 relative">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -97,7 +97,7 @@ export const CertificatesSection = () => {
             className="rounded-full"
             size="sm"
           >
-            All
+            {t('common.all')}
           </Button>
           {categories.map((cat: any) => (
             <Button
@@ -112,16 +112,24 @@ export const CertificatesSection = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          layout 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           <AnimatePresence mode="popLayout">
             {displayedCertificates.map((cert) => (
               <motion.div
                 key={cert.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400, 
+                  damping: 30,
+                  mass: 1 
+                }}
                 className="group relative"
                 onClick={() => openCertificateModal(cert)}
               >
@@ -141,7 +149,7 @@ export const CertificatesSection = () => {
                     )}
                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="px-4 py-2 rounded-lg bg-background/90 text-sm font-medium">
-                        View Certificate
+                        {t('certificates.view')}
                       </span>
                     </div>
                   </div>
@@ -168,7 +176,7 @@ export const CertificatesSection = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <ExternalLink className="w-3 h-3" />
-                          Verify
+                          {t('certificates.verify')}
                         </a>
                       )}
                     </div>
@@ -177,7 +185,7 @@ export const CertificatesSection = () => {
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
@@ -191,10 +199,10 @@ export const CertificatesSection = () => {
                   : 'bg-primary/10 text-primary hover:bg-primary/20'
               }`}
             >
-              Previous
+              {t('common.previous')}
             </button>
             <span className="flex items-center text-muted-foreground text-sm">
-              Page {currentPage} of {totalPages}
+              {t('common.page_info', { current: currentPage, total: totalPages })}
             </span>
             <button
               onClick={handleNextPage}

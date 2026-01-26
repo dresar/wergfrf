@@ -132,6 +132,11 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
+        tilt: {
+          "0%, 50%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(0.5deg)" },
+          "75%": { transform: "rotate(-0.5deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -148,11 +153,12 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         spin: "spin 8s linear infinite",
         "rotate-border": "rotate-border 4s linear infinite",
+        tilt: "tilt 10s infinite linear",
       },
       backdropBlur: {
         xs: "2px",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;

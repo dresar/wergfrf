@@ -22,11 +22,24 @@ export const useSettings = () => {
     },
   });
 
+  const createSettings = useMutation({
+    mutationFn: (data: any) => siteSettingsAPI.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      toast.success('Settings created/updated successfully');
+    },
+    onError: (error) => {
+      console.error('Failed to save settings:', error);
+      toast.error('Failed to save settings');
+    },
+  });
+
   return {
     settings,
     isLoading,
     error,
     updateSettings: updateSettings.mutate,
-    isUpdating: updateSettings.isPending,
+    createSettings: createSettings.mutate,
+    isUpdating: updateSettings.isPending || createSettings.isPending,
   };
 };

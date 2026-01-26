@@ -18,7 +18,7 @@ export function useProjects() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
-      console.error('Failed to create project:', error);
+      // console.error('Failed to create project:', error);
       toast.error('Failed to create project');
     },
   });
@@ -29,7 +29,7 @@ export function useProjects() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
-      console.error('Failed to update project:', error);
+      // console.error('Failed to update project:', error);
       toast.error('Failed to update project');
     },
   });
@@ -64,7 +64,7 @@ export function useProjects() {
       toast.success('Image deleted successfully');
     },
     onError: (error) => {
-      console.error('Failed to delete image:', error);
+      // console.error('Failed to delete image:', error);
       toast.error('Failed to delete image');
     },
   });

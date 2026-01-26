@@ -8,9 +8,10 @@ import { ThemeProvider } from "next-themes";
 import { Loader2 } from "lucide-react";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Login from "@/pages/Login";
-
-// Lazy load pages
+const Login = lazy(() => import("./pages/Login"));
+const BlogList = lazy(() => import("./pages/BlogList"));
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -24,6 +25,8 @@ const EducationManager = lazy(() => import("./pages/admin/EducationManager"));
 const CertificateManager = lazy(() => import("./pages/admin/CertificateManager"));
 const WATemplateManager = lazy(() => import("./pages/admin/WATemplateManager"));
 const ContentEditor = lazy(() => import("./pages/admin/ContentEditor"));
+const BlogManager = lazy(() => import("./pages/admin/BlogManager"));
+const BlogForm = lazy(() => import("./pages/admin/BlogForm"));
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,7 @@ import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Outlet } from "react-router-dom";
 import { ThemeApplicator } from "@/components/effects/ThemeApplicator";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 
 // Admin Layout Wrapper
 const AdminLayout = () => {
@@ -60,29 +64,37 @@ const App = () => (
           <AuthProvider>
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<Index />} />
-                
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<AdminLayout />}>
-                    <Route path="/admin" element={<Dashboard />} />
-                    <Route path="/admin/projects" element={<Projects />} />
-                    <Route path="/admin/projects/new" element={<ProjectForm />} />
-                    <Route path="/admin/projects/:id" element={<ProjectForm />} />
-                    <Route path="/admin/inbox" element={<Inbox />} />
-                    <Route path="/admin/settings" element={<Settings />} />
-                    <Route path="/admin/skills" element={<Skills />} />
-                    <Route path="/admin/experience" element={<ExperienceManager />} />
-                    <Route path="/admin/education" element={<EducationManager />} />
-                    <Route path="/admin/certificates" element={<CertificateManager />} />
-                    <Route path="/admin/wa-templates" element={<WATemplateManager />} />
-                    <Route path="/admin/content" element={<ContentEditor />} />
-                  </Route>
-                </Route>
+                <MaintenanceGuard>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<Index />} />
+                    <Route path="/blog" element={<BlogList />} />
+                    <Route path="/blog/:slug" element={<BlogDetail />} />
+                    <Route path="/projects/:id" element={<ProjectDetail />} />
+                    
+                    <Route element={<ProtectedRoute />}>
+                      <Route element={<AdminLayout />}>
+                        <Route path="/admin" element={<Dashboard />} />
+                        <Route path="/admin/projects" element={<Projects />} />
+                        <Route path="/admin/projects/new" element={<ProjectForm />} />
+                        <Route path="/admin/projects/:id" element={<ProjectForm />} />
+                        <Route path="/admin/inbox" element={<Inbox />} />
+                        <Route path="/admin/settings" element={<Settings />} />
+                        <Route path="/admin/skills" element={<Skills />} />
+                        <Route path="/admin/experience" element={<ExperienceManager />} />
+                        <Route path="/admin/education" element={<EducationManager />} />
+                        <Route path="/admin/certificates" element={<CertificateManager />} />
+                        <Route path="/admin/wa-templates" element={<WATemplateManager />} />
+                        <Route path="/admin/content" element={<ContentEditor />} />
+                        <Route path="/admin/blog" element={<BlogManager />} />
+                        <Route path="/admin/blog/new" element={<BlogForm />} />
+                        <Route path="/admin/blog/:id" element={<BlogForm />} />
+                      </Route>
+                    </Route>
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </MaintenanceGuard>
               </Suspense>
             </ErrorBoundary>
           </AuthProvider>

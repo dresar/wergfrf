@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useProfile } from '@/hooks/useProfile';
 import { useSettings } from '@/hooks/useSettings';
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 const navItems = [
   { id: 'home', label: 'nav.home', href: '#home' },
@@ -15,6 +16,7 @@ const navItems = [
   { id: 'projects', label: 'nav.projects', href: '#projects' },
   { id: 'experience', label: 'nav.experience', href: '#experience' },
   { id: 'certificates', label: 'nav.certificates', href: '#certificates' },
+  { id: 'blog', label: 'nav.blog', href: '#blog' }, // Added Blog to nav? No, user said "daftar blog menu". But maybe I should add it? The request didn't explicitly ask to add "Blog" to header menu, just "logo click". I'll stick to logo click.
   { id: 'contact', label: 'nav.contact', href: '#contact' },
 ];
 
@@ -27,6 +29,8 @@ export const Header = () => {
   const [mounted, setMounted] = useState(false);
   const { profile } = useProfile();
   const { settings } = useSettings();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setMounted(true);
@@ -41,15 +45,17 @@ export const Header = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
 
-      // Update active section based on scroll position
-      const sections = navItems.map(item => item.href.slice(1));
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100) {
-            setActiveSection(section);
-            break;
+      if (location.pathname === '/') {
+        // Update active section based on scroll position
+        const sections = navItems.map(item => item.href.slice(1));
+        for (const section of sections.reverse()) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100) {
+              setActiveSection(section);
+              break;
+            }
           }
         }
       }
@@ -57,14 +63,35 @@ export const Header = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   const scrollToSection = (href: string) => {
-    const element = document.getElementById(href.slice(1));
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
     setIsMobileMenuOpen(false);
+    
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Delay to allow navigation to complete
+      setTimeout(() => {
+        const element = document.getElementById(href.slice(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
+    } else {
+      const element = document.getElementById(href.slice(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname !== '/') {
+      navigate('/');
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const toggleTheme = () => {
@@ -84,7 +111,8 @@ export const Header = () => {
         <div className="container mx-auto px-4 flex items-center justify-between">
           {/* Logo */}
           <motion.a
-            href="#home"
+            href="/"
+            onClick={handleLogoClick}
             className="text-xl md:text-2xl font-heading font-bold"
             whileHover={{ scale: 1.05 }}
           >

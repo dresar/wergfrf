@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -59,6 +59,8 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 const CertificateManager = () => {
   const { 
     certificates = [], 
@@ -79,6 +81,10 @@ const CertificateManager = () => {
   const [editingCertificate, setEditingCertificate] = useState<Partial<Certificate> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isTestingLink, setIsTestingLink] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   const openEditDialog = (cert?: Certificate) => {
     setEditingCertificate(
@@ -185,9 +191,19 @@ const CertificateManager = () => {
     return new Date(expiryDate) < new Date();
   };
 
-  const sortedCertificates = [...certificates].sort(
-    (a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime()
-  );
+  const sortedCertificates = useMemo(() => {
+    return [...certificates].sort(
+      (a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime()
+    );
+  }, [certificates]);
+
+  const totalPages = Math.ceil(sortedCertificates.length / ITEMS_PER_PAGE);
+  const paginatedCertificates = useMemo(() => {
+    return sortedCertificates.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  }, [sortedCertificates, currentPage]);
 
   const FormContent = () => (
     <div className="space-y-6">
@@ -447,7 +463,7 @@ const CertificateManager = () => {
           />
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {sortedCertificates.map((cert, index) => (
+            {paginatedCertificates.map((cert, index) => (
               <motion.div
                 key={cert.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -538,6 +554,15 @@ const CertificateManager = () => {
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Pagination */}
+        {!loading && sortedCertificates.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
 
         {/* Edit Dialog/Drawer */}

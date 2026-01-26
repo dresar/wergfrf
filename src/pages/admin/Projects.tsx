@@ -53,6 +53,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Project } from '@/store/adminStore';
 import { CategoryManager } from '@/components/admin/CategoryManager';
+import { Pagination } from '@/components/ui/Pagination';
 
 // Sortable Item Component
 function SortableProjectCard({ 
@@ -400,32 +401,16 @@ const Projects = () => {
               </div>
             </SortableContext>
           </DndContext>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Halaman {currentPage} dari {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
         </>
+      )}
+
+      {/* Pagination */}
+      {filteredProjects.length > 0 && (
+        <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+        />
       )}
 
       <ConfirmDialog

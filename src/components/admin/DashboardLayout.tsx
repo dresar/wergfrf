@@ -55,6 +55,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Dasbor', href: '/admin' },
   { icon: FolderKanban, label: 'Proyek', href: '/admin/projects' },
+  { icon: FileText, label: 'Blog', href: '/admin/blog' },
   { icon: User, label: 'Tentang Saya', href: '/admin/content' },
   { icon: Code2, label: 'Keahlian', href: '/admin/skills' },
   { icon: Briefcase, label: 'Pengalaman', href: '/admin/experience' },

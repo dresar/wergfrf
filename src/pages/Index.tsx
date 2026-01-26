@@ -8,6 +8,7 @@ import { SkillsSection } from '@/components/sections/SkillsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
 import { ExperienceSection } from '@/components/sections/ExperienceSection';
 import { CertificatesSection } from '@/components/sections/CertificatesSection';
+import { BlogSection } from '@/components/sections/BlogSection';
 import { ContactSection } from '@/components/sections/ContactSection';
 import { GlobalModal } from '@/components/GlobalModal';
 import { BlobCursor } from '@/components/effects/BlobCursor';
@@ -41,6 +42,7 @@ const Index = () => {
         <ProjectsSection />
         <ExperienceSection />
         <CertificatesSection />
+        <BlogSection />
         <ContactSection />
       </main>
       

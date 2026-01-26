@@ -1,10 +1,22 @@
 import { motion } from 'framer-motion';
-import { FolderOpen, Inbox, FileText, Users, Briefcase, GraduationCap, Award, Share2 } from 'lucide-react';
+import { 
+  FolderOpen, 
+  Inbox, 
+  FileText, 
+  Users, 
+  Briefcase, 
+  GraduationCap, 
+  Award, 
+  Share2, 
+  MessageSquare, 
+  Edit,
+  type LucideIcon 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-  icon?: 'folder' | 'inbox' | 'file' | 'users' | 'briefcase' | 'graduation-cap' | 'award' | 'share-2';
+  icon?: string | LucideIcon;
   title: string;
   description: string;
   action?: {
@@ -14,7 +26,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
-const icons = {
+const icons: Record<string, LucideIcon> = {
   folder: FolderOpen,
   inbox: Inbox,
   file: FileText,
@@ -23,10 +35,18 @@ const icons = {
   'graduation-cap': GraduationCap,
   award: Award,
   'share-2': Share2,
+  'message-square': MessageSquare,
+  edit: Edit,
 };
 
 export function EmptyState({ icon = 'folder', title, description, action, className }: EmptyStateProps) {
-  const Icon = icons[icon];
+  let Icon: LucideIcon;
+
+  if (typeof icon === 'string') {
+    Icon = icons[icon] || FolderOpen;
+  } else {
+    Icon = icon;
+  }
 
   return (
     <motion.div

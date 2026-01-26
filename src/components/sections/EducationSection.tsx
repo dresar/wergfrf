@@ -19,7 +19,7 @@ export const EducationSection = () => {
   }
 
   return (
-    <section id="education" className="py-12 md:py-20 relative">
+    <section id="education" className="py-12 md:py-16 relative">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -70,12 +70,12 @@ export const EducationSection = () => {
                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md">
                           <Calendar className="w-3.5 h-3.5" />
-                          {edu.startDate} - {edu.endDate || 'Present'}
+                          {edu.startDate} - {edu.endDate || t('common.present')}
                         </div>
                         {edu.gpa && (
                           <div className="flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md text-primary font-medium">
                             <Award className="w-3.5 h-3.5" />
-                            GPA: {edu.gpa}
+                            {t('education.gpa')} {edu.gpa}
                           </div>
                         )}
                      </div>
@@ -89,7 +89,7 @@ export const EducationSection = () => {
                         className="text-[10px] px-2.5 py-1.5 h-auto"
                       >
                         <Image className="w-3 h-3 mr-1.5" />
-                        Gallery
+                        {t('education.gallery')}
                       </ShinyButton>
                     )}
                     {edu.attachments && edu.attachments.length > 0 && (
@@ -98,7 +98,7 @@ export const EducationSection = () => {
                         className="text-[10px] px-2.5 py-1.5 h-auto"
                       >
                         <FileText className="w-3 h-3 mr-1.5" />
-                        Docs
+                        {t('education.docs')}
                       </ShinyButton>
                     )}
                   </div>

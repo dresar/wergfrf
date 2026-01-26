@@ -10,6 +10,7 @@ import { useCertificates } from '@/hooks/useCertificates';
 import { useSkills } from '@/hooks/useSkills';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
 import { Github, Linkedin, Twitter, Instagram, Facebook, Youtube, Mail, Globe, Link as LinkIcon } from 'lucide-react';
+import { normalizeMediaUrl } from '@/lib/utils';
 
 const socialIcons: Record<string, any> = {
   github: Github,
@@ -26,12 +27,28 @@ const socialIcons: Record<string, any> = {
 export const AboutSection = () => {
   const { t, i18n } = useTranslation();
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
-  const { profile } = useProfile();
-  const { aboutContent } = useAdminStore();
+  const { profile: queryProfile } = useProfile();
+  const { aboutContent, profile: storeProfile } = useAdminStore();
   const { experiences = [], isLoading } = useExperience();
   const { projects = [] } = useProjects();
   const { certificates = [] } = useCertificates();
   const { skills = [] } = useSkills();
+  
+  // Prefer queryProfile (fresh from API) but fall back to storeProfile (updated by admin)
+  const profile = queryProfile || storeProfile;
+  
+  // Use backend counts if available (injected by ProfileViewSet), otherwise fallback to array length
+  // Use a safer fallback that checks if arrays are loaded
+  const safeCertCount = certificates ? certificates.length : 0;
+  const safeSkillCount = skills ? skills.length : 0;
+
+  const certificateCount = (profile as any)?.total_certificates !== undefined 
+    ? (profile as any).total_certificates 
+    : safeCertCount;
+    
+  const skillCount = (profile as any)?.total_skills !== undefined 
+    ? (profile as any).total_skills 
+    : safeSkillCount;
   const { socialLinks = [] } = useSocialLinks();
 
   // Determine localized content
@@ -47,17 +64,33 @@ export const AboutSection = () => {
     : null) || (aboutContent?.long_description_id) || profile?.bio;
 
   // About Image logic: AboutContent > Profile
-  const aboutImage = aboutContent?.aboutImageFile || aboutContent?.aboutImage || profile?.aboutImageFile || profile?.aboutImage;
+  const rawAboutImage = aboutContent?.aboutImageFile || aboutContent?.aboutImage || profile?.aboutImageFile || profile?.aboutImage;
+  const aboutImage = normalizeMediaUrl(rawAboutImage);
 
   // Calculate years of experience
   const startYear = experiences.length > 0 
     ? Math.min(...experiences.map((exp: any) => new Date(exp.startDate).getFullYear()))
     : new Date().getFullYear();
-  const yearsExperience = new Date().getFullYear() - startYear;
+  
+  // Helper to safely parse stats
+  const parseStat = (val: string | null | undefined) => {
+    if (!val) return 0;
+    // Extract first number found
+    const match = String(val).match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+
+  // Use manual stats if available, otherwise fallback to calculated
+  const manualYearsExp = parseStat(profile?.stats_exp_years);
+  const calculatedYearsExp = new Date().getFullYear() - startYear;
+  const yearsExperience = manualYearsExp > 0 ? manualYearsExp : calculatedYearsExp;
+
+  const manualProjectCount = parseStat(profile?.stats_project_count);
+  const projectCount = manualProjectCount > 0 ? manualProjectCount : projects.length;
 
   const stats = [
     { id: 1, label: t('hero.years_experience'), value: yearsExperience, suffix: "+" },
-    { id: 2, label: t('hero.projects_completed'), value: projects.length, suffix: "+" },
+    { id: 2, label: t('hero.projects_completed'), value: projectCount, suffix: "+" },
     { id: 3, label: t('nav.certificates'), value: certificates.length, suffix: "" },
     { id: 4, label: t('nav.skills'), value: skills.length, suffix: "+" },
   ];
@@ -67,7 +100,7 @@ export const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="py-10 md:py-16 relative">
+    <section id="about" className="py-10 md:py-16 relative" ref={ref}>
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-center">
           {/* Image Side */}
@@ -102,7 +135,7 @@ export const AboutSection = () => {
                 )}
               </div>
 
-              {/* Floating Stats - Years Experience */}
+              {/* Floating Stats - Certifications (Replaces Experience) */}
               <motion.div 
                 className="absolute -left-4 top-10 p-4 rounded-xl glass border border-white/10 shadow-lg z-20"
                 initial={{ opacity: 0, x: -20 }}
@@ -116,13 +149,13 @@ export const AboutSection = () => {
               >
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary">
-                    {inView ? <CountUp end={yearsExperience} duration={2.5} /> : 0}+
+                    {inView ? <CountUp end={certificateCount} duration={2.5} /> : 0}
                   </p>
-                  <p className="text-xs text-muted-foreground">{t('hero.years_experience')}</p>
+                  <p className="text-xs text-muted-foreground">{t('nav.certificates') || "Sertifikasi"}</p>
                 </div>
               </motion.div>
 
-              {/* Floating Stats - Projects */}
+              {/* Floating Stats - Skills (Replaces Projects) */}
               <motion.div 
                 className="absolute -right-4 bottom-10 p-4 rounded-xl glass border border-white/10 shadow-lg z-20"
                 initial={{ opacity: 0, x: 20 }}
@@ -136,9 +169,9 @@ export const AboutSection = () => {
               >
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary">
-                    {inView ? <CountUp end={projects.length} duration={2.5} /> : 0}+
+                    {inView ? <CountUp end={skillCount} duration={2.5} /> : 0}+
                   </p>
-                  <p className="text-xs text-muted-foreground">{t('hero.projects_completed')}</p>
+                  <p className="text-xs text-muted-foreground">{t('nav.skills') || "Keahlian"}</p>
                 </div>
               </motion.div>
 

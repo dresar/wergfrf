@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -50,6 +50,8 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
@@ -71,6 +73,10 @@ const EducationManager = () => {
   const [editingEducation, setEditingEducation] = useState<Partial<Education> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isGalleryDragging, setIsGalleryDragging] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   const openEditDialog = (edu?: Education) => {
     setEditingEducation(
@@ -174,9 +180,19 @@ const EducationManager = () => {
     }));
   };
 
-  const sortedEducation = [...education].sort(
-    (a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime()
-  );
+  const sortedEducation = useMemo(() => {
+    return [...education].sort(
+      (a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime()
+    );
+  }, [education]);
+
+  const totalPages = Math.ceil(sortedEducation.length / ITEMS_PER_PAGE);
+  const paginatedEducation = useMemo(() => {
+    return sortedEducation.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  }, [sortedEducation, currentPage]);
 
   const FormContent = () => (
     <div className="space-y-6">
@@ -433,7 +449,7 @@ const EducationManager = () => {
           />
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {sortedEducation.map((edu, index) => (
+            {paginatedEducation.map((edu, index) => (
               <motion.div
                 key={edu.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -519,6 +535,15 @@ const EducationManager = () => {
               </motion.div>
             ))}
           </div>
+        )}
+
+        {/* Pagination */}
+        {sortedEducation.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
 
         {/* Edit Dialog/Drawer */}

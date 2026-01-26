@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useSettings } from '@/hooks/useSettings';
+import { useTheme } from 'next-themes';
 
 const hexToHSL = (hex: string) => {
   let r = 0, g = 0, b = 0;
@@ -40,28 +41,65 @@ const hexToHSL = (hex: string) => {
 };
 
 export const ThemeApplicator = () => {
-  const { settings } = useSettings();
+  const { settings: settingsData } = useSettings();
+  const { setTheme, theme: currentTheme } = useTheme();
+  
+  // Handle if settings is an array (API might return a list)
+  const settings = Array.isArray(settingsData) ? settingsData[0] : settingsData;
 
   useEffect(() => {
     if (settings) {
       const root = document.documentElement;
-      if (settings.primaryColor && settings.primaryColor.startsWith('#')) {
-        const hsl = hexToHSL(settings.primaryColor);
-        root.style.setProperty('--primary', hsl);
-        root.style.setProperty('--ring', hsl);
-        // Also update chart colors if needed
-        root.style.setProperty('--chart-1', hsl);
+      
+      // Sync Theme Mode (Dark/Light)
+      if (settings.theme && settings.theme !== currentTheme) {
+        setTheme(settings.theme);
       }
-      if (settings.secondaryColor && settings.secondaryColor.startsWith('#')) {
-        const hsl = hexToHSL(settings.secondaryColor);
-        root.style.setProperty('--secondary', hsl);
+
+      // Helper to set color property
+      const setProperty = (property: string, hex: string) => {
+        if (!hex) return null;
+        
+        // Ensure hex starts with #
+        const cleanHex = hex.startsWith('#') ? hex : `#${hex}`;
+        
+        // Validate hex length
+        if (cleanHex.length !== 4 && cleanHex.length !== 7) return null;
+
+        try {
+          const hsl = hexToHSL(cleanHex);
+          // Set property with high priority
+          root.style.setProperty(property, hsl);
+          return hsl;
+        } catch (e) {
+          console.error('Failed to apply theme color:', e);
+          return null;
+        }
+      };
+
+      if (settings.primaryColor) {
+        const hsl = setProperty('--primary', settings.primaryColor);
+        if (hsl) {
+          root.style.setProperty('--ring', hsl);
+          root.style.setProperty('--chart-1', hsl);
+          root.style.setProperty('--sidebar-primary', hsl);
+          root.style.setProperty('--sidebar-ring', hsl);
+          
+          // Apply glow effects dynamically based on color
+          root.style.setProperty('--glow-primary', `0 0 30px hsl(${hsl} / 0.3)`);
+          root.style.setProperty('--glow-primary-lg', `0 0 60px hsl(${hsl} / 0.25), 0 0 120px hsl(${hsl} / 0.15)`);
+        }
       }
-      if (settings.accentColor && settings.accentColor.startsWith('#')) {
-        const hsl = hexToHSL(settings.accentColor);
-        root.style.setProperty('--accent', hsl);
+
+      if (settings.secondaryColor) {
+        setProperty('--secondary', settings.secondaryColor);
+      }
+
+      if (settings.accentColor) {
+        setProperty('--accent', settings.accentColor);
       }
     }
-  }, [settings]);
+  }, [settings, setTheme]);
 
   return null;
 };

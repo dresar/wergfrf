@@ -1,5 +1,5 @@
 // API Service untuk koneksi ke backend
-const API_BASE_URL = "https://backend.ekasyarifmaulana.biz.id/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend.ekasyarifmaulana.biz.id/api";
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
@@ -147,4 +147,31 @@ export const waTemplatesAPI = {
 // Health check
 export const healthAPI = {
   check: () => apiCall('/health/'),
+};
+
+// Media Upload API
+export const mediaAPI = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiCall('/upload/', { method: 'POST', body: formData });
+  }
+};
+
+// Blog Categories API
+export const blogCategoriesAPI = {
+  getAll: () => apiCall('/blog-categories/'),
+  create: (data: any) => apiCall('/blog-categories/', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => apiCall(`/blog-categories/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => apiCall(`/blog-categories/${id}/`, { method: 'DELETE' }),
+};
+
+// Blog Posts API
+export const blogPostsAPI = {
+  getAll: () => apiCall('/blog-posts/'),
+  getBySlug: (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
+  getById: (id: number) => apiCall(`/blog-posts/${id}/`),
+  create: (data: any) => apiCall('/blog-posts/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
+  update: (id: number, data: any) => apiCall(`/blog-posts/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
+  delete: (id: number) => apiCall(`/blog-posts/${id}/`, { method: 'DELETE' }),
 };

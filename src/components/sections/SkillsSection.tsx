@@ -59,7 +59,7 @@ export const SkillsSection = () => {
   }
 
   return (
-    <section id="skills" className="py-12 md:py-20 relative bg-card/30">
+    <section id="skills" className="py-12 md:py-16 relative bg-card/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -125,7 +125,7 @@ export const SkillsSection = () => {
             ))
           ) : (
             <div className="col-span-full text-center py-12 text-muted-foreground">
-              No skills found in this category.
+              {t('skills.no_skills')}
             </div>
           )}
         </div>

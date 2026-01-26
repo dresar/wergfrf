@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Search,
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/admin/DashboardLayout';
 import { EmptyState } from '@/components/admin/EmptyState';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { type WATemplate, useAdminStore } from '@/store/adminStore';
@@ -44,6 +43,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
+
+import { Pagination } from '@/components/ui/Pagination';
 
 const WATemplateManager = () => {
   const { 
@@ -126,6 +127,42 @@ const WATemplateManager = () => {
 
   const categories = Array.from(new Set(waTemplates.map((t) => t.category)));
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
+
+  const totalPages = Math.ceil(filteredTemplates.length / ITEMS_PER_PAGE);
+  
+  const paginatedTemplates = filteredTemplates.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handleGenerateDummy = async () => {
+    setIsSubmitting(true);
+    try {
+      const dummyTemplates = [
+        { template_name: "Salam Pembuka", template_content: "Halo! Terima kasih sudah menghubungi kami. Ada yang bisa kami bantu?", category: "General", is_active: true },
+        { template_name: "Info Harga", template_content: "Untuk informasi harga, silakan cek katalog kami di link berikut: [Link]", category: "Sales", is_active: true },
+        { template_name: "Konfirmasi Order", template_content: "Pesanan Anda telah kami terima dan sedang diproses. Mohon ditunggu ya!", category: "Order", is_active: true },
+        { template_name: "Jadwal Meeting", template_content: "Baik, jadwal meeting telah dikonfirmasi untuk hari [Hari] jam [Jam].", category: "Meeting", is_active: true },
+        { template_name: "Follow Up", template_content: "Halo, kami ingin menanyakan kembali terkait penawaran sebelumnya. Apakah ada update?", category: "Sales", is_active: true },
+        { template_name: "Terima Kasih", template_content: "Terima kasih telah berbelanja di toko kami. Ditunggu pesanan berikutnya!", category: "General", is_active: true },
+        { template_name: "Komplain", template_content: "Mohon maaf atas ketidaknyamanan ini. Bisa tolong kirimkan foto/video bukti kerusakan?", category: "Support", is_active: true },
+        { template_name: "Resi Pengiriman", template_content: "Pesanan Kakak sudah dikirim dengan nomor resi: [No Resi]. Bisa dicek berkala ya.", category: "Order", is_active: true },
+        { template_name: "Promo Bulan Ini", template_content: "Khusus bulan ini, dapatkan diskon 20% untuk semua produk!", category: "Marketing", is_active: true },
+        { template_name: "Out of Office", template_content: "Saat ini kami sedang di luar jam kerja. Pesanan akan kami proses besok pagi.", category: "General", is_active: false }
+      ];
+
+      await Promise.all(dummyTemplates.map(t => addWATemplate(t)));
+      toast.success('10 data dummy berhasil ditambahkan!');
+    } catch (error) {
+      toast.error('Gagal menambahkan data dummy');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const FormContent = () => (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -182,9 +219,8 @@ const WATemplateManager = () => {
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -232,11 +268,14 @@ const WATemplateManager = () => {
             icon="message-square"
             title="Tidak ada template ditemukan"
             description={searchQuery ? "Coba kata kunci lain" : "Belum ada template yang dibuat"}
-            action={!searchQuery ? { label: 'Tambah Template', onClick: () => openEditDialog() } : undefined}
+            action={!searchQuery ? { 
+              label: 'Buat Dummy Data', 
+              onClick: handleGenerateDummy 
+            } : undefined}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTemplates.map((template, index) => (
+            {paginatedTemplates.map((template, index) => (
               <motion.div
                 key={template.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -293,6 +332,15 @@ const WATemplateManager = () => {
           </div>
         )}
 
+        {/* Pagination */}
+        {filteredTemplates.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
+
         {/* Edit Dialog/Drawer */}
         {isMobile ? (
           <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -335,15 +383,14 @@ const WATemplateManager = () => {
         )}
 
         <ConfirmDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          title="Hapus Template"
-          description="Apakah Anda yakin ingin menghapus template ini? Tindakan ini tidak dapat dibatalkan."
-          onConfirm={handleDelete}
-          variant="destructive"
-        />
-      </div>
-    </DashboardLayout>
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Hapus Template"
+        description="Apakah Anda yakin ingin menghapus template ini? Tindakan ini tidak dapat dibatalkan."
+        onConfirm={handleDelete}
+        variant="destructive"
+      />
+    </div>
   );
 };
 

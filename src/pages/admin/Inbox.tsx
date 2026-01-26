@@ -11,11 +11,13 @@ import {
   Download,
   Users,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 
 import { EmptyState } from '@/components/admin/EmptyState';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useAdminStore, type Message } from '@/store/adminStore';
+import { useAI } from '@/hooks/useAI';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +40,8 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 const Inbox = () => {
   const {
     messages,
@@ -51,13 +55,21 @@ const Inbox = () => {
     exportSubscribers,
   } = useAdminStore();
 
+  const { analyzeMessage, isGenerating: isAnalyzing } = useAI();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [messageSheetOpen, setMessageSheetOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tab, setTab] = useState('inbox');
+  const [inboxPage, setInboxPage] = useState(1);
+  const [subscribersPage, setSubscribersPage] = useState(1);
+
+  // Pagination constants
+  const ITEMS_PER_PAGE = 10;
 
   // Filter messages
   const filteredMessages = useMemo(() => {
@@ -79,13 +91,37 @@ const Inbox = () => {
     );
   }, [subscribers, searchQuery]);
 
+  // Paginated Data
+  const totalInboxPages = Math.ceil(filteredMessages.length / ITEMS_PER_PAGE);
+  const paginatedMessages = filteredMessages.slice(
+    (inboxPage - 1) * ITEMS_PER_PAGE,
+    inboxPage * ITEMS_PER_PAGE
+  );
+
+  const totalSubscribersPages = Math.ceil(filteredSubscribers.length / ITEMS_PER_PAGE);
+  const paginatedSubscribers = filteredSubscribers.slice(
+    (subscribersPage - 1) * ITEMS_PER_PAGE,
+    subscribersPage * ITEMS_PER_PAGE
+  );
+
   const unreadCount = messages && Array.isArray(messages) ? messages.filter(m => !m.isRead).length : 0;
 
   const handleOpenMessage = (message: Message) => {
     setSelectedMessage(message);
+    setAnalysisResult(null);
     setMessageSheetOpen(true);
     if (!message.isRead) {
       markMessageRead(message.id);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedMessage) return;
+    try {
+      const result = await analyzeMessage(selectedMessage.message, selectedMessage.senderName);
+      setAnalysisResult(result);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -198,7 +234,7 @@ const Inbox = () => {
               />
             ) : (
               <div className="glass rounded-xl divide-y divide-border">
-                {filteredMessages.map((message, index) => (
+                {paginatedMessages.map((message, index) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -302,6 +338,15 @@ const Inbox = () => {
                 ))}
               </div>
             )}
+
+            {/* Inbox Pagination */}
+            {filteredMessages.length > 0 && (
+              <Pagination
+                currentPage={inboxPage}
+                totalPages={totalInboxPages}
+                onPageChange={setInboxPage}
+              />
+            )}
           </TabsContent>
 
 
@@ -316,7 +361,7 @@ const Inbox = () => {
               />
             ) : (
               <div className="glass rounded-xl divide-y divide-border">
-                {filteredSubscribers.map((subscriber, index) => (
+                {paginatedSubscribers.map((subscriber, index) => (
                   <motion.div
                     key={subscriber.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -357,6 +402,14 @@ const Inbox = () => {
                 ))}
               </div>
             )}
+
+            {filteredSubscribers.length > 0 && (
+              <Pagination
+                currentPage={subscribersPage}
+                totalPages={totalSubscribersPages}
+                onPageChange={setSubscribersPage}
+              />
+            )}
           </TabsContent>
         </Tabs>
 
@@ -372,10 +425,36 @@ const Inbox = () => {
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-6 space-y-4">
-                <p className="text-xs text-muted-foreground">
-                  Diterima: {formatDate(selectedMessage.createdAt)}
-                </p>
-                <ScrollArea className="h-[60vh]">
+                <div className="flex justify-between items-center">
+                    <p className="text-xs text-muted-foreground">
+                    Diterima: {formatDate(selectedMessage.createdAt)}
+                    </p>
+                    <Button variant="ghost" size="sm" onClick={handleAnalyze} disabled={isAnalyzing} className="h-8 text-xs text-primary">
+                        {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Sparkles className="w-3 h-3 mr-1"/>}
+                        Analyze Message
+                    </Button>
+                </div>
+
+                {analysisResult && (
+                    <div className="bg-primary/5 p-4 rounded-lg text-sm space-y-2 border border-primary/10">
+                        <div className="font-semibold flex items-center gap-2 text-primary">
+                            <Sparkles className="w-4 h-4" />
+                            AI Analysis Result
+                        </div>
+                        {analysisResult.sentiment && (
+                            <div><span className="font-medium">Sentiment:</span> {analysisResult.sentiment}</div>
+                        )}
+                         {analysisResult.summary && (
+                            <div><span className="font-medium">Summary:</span> {analysisResult.summary}</div>
+                        )}
+                        {/* Fallback for other fields */}
+                        {!analysisResult.sentiment && !analysisResult.summary && (
+                             <div className="whitespace-pre-wrap">{typeof analysisResult === 'string' ? analysisResult : JSON.stringify(analysisResult)}</div>
+                        )}
+                    </div>
+                )}
+
+                <ScrollArea className="h-[50vh]">
                   <p className="text-sm whitespace-pre-wrap">{selectedMessage.message}</p>
                 </ScrollArea>
                 <div className="flex gap-2 pt-4 border-t">

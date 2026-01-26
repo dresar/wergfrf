@@ -1,0 +1,10 @@
+[
+  {
+    "provider": "gemini",
+    "key": "AIzaSyYourGeminiKeyHere12345"
+  },
+  {
+    "provider": "groq",
+    "key": "gsk_YourGroqKeyHere67890"
+  }
+]

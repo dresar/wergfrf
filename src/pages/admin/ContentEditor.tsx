@@ -28,7 +28,10 @@ import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useAdminStore } from '@/store/adminStore';
+import { normalizeMediaUrl } from '@/lib/utils';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { AIAssistantModal } from '@/components/admin/AIAssistantModal';
+import { Sparkles } from 'lucide-react';
 
 const ContentEditor = () => {
   const { profile, aboutContent, updateProfile, updateAboutContent, fetchInitialData } = useAdminStore();
@@ -45,6 +48,10 @@ const ContentEditor = () => {
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
   const [aboutShortDesc, setAboutShortDesc] = useState('');
   const [aboutLongDesc, setAboutLongDesc] = useState('');
+  
+  // AI Modal State
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiTarget, setAiTarget] = useState<'short' | 'long'>('short');
   
   const [resumeUrl, setResumeUrl] = useState('');
   const [location, setLocation] = useState('');
@@ -315,31 +322,6 @@ const ContentEditor = () => {
                       ))}
                     </Reorder.Group>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="statsProjectCount">Jumlah Proyek (Teks)</Label>
-                      <Input
-                        id="statsProjectCount"
-                        value={statsProjectCount}
-                        onChange={(e) => setStatsProjectCount(e.target.value)}
-                        placeholder="e.g. 15+"
-                        disabled={!isEditing}
-                      />
-                      <p className="text-xs text-muted-foreground">Kosongkan untuk hitung otomatis</p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="statsExpYears">Tahun Pengalaman (Teks)</Label>
-                      <Input
-                        id="statsExpYears"
-                        value={statsExpYears}
-                        onChange={(e) => setStatsExpYears(e.target.value)}
-                        placeholder="e.g. 5+"
-                        disabled={!isEditing}
-                      />
-                      <p className="text-xs text-muted-foreground">Kosongkan untuk hitung otomatis</p>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
 
@@ -376,7 +358,7 @@ const ContentEditor = () => {
                   {heroImage && (
                     <div className="mt-4">
                       <img
-                        src={heroImage}
+                        src={normalizeMediaUrl(heroImage)}
                         alt="Pratinjau Hero"
                         className="w-full h-48 object-cover rounded-lg"
                       />
@@ -542,7 +524,7 @@ const ContentEditor = () => {
                   {aboutImage && (
                     <div className="mt-4">
                       <img
-                        src={aboutImage}
+                        src={normalizeMediaUrl(aboutImage)}
                         alt="Pratinjau Tentang"
                         className="w-full h-48 object-cover rounded-lg"
                       />

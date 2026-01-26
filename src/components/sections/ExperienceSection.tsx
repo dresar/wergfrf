@@ -16,7 +16,7 @@ export const ExperienceSection = () => {
   }
 
   return (
-    <section id="experience" className="py-12 md:py-20 relative bg-card/30">
+    <section id="experience" className="py-12 md:py-16 relative bg-card/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -68,7 +68,7 @@ export const ExperienceSection = () => {
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md">
                       <Calendar className="w-4 h-4" />
-                      {new Date(exp.startDate).toLocaleDateString('en', { month: 'short', year: 'numeric' })} - {exp.isCurrent ? 'Present' : (exp.endDate ? new Date(exp.endDate).toLocaleDateString('en', { month: 'short', year: 'numeric' }) : 'Present')}
+                      {new Date(exp.startDate).toLocaleDateString('en', { month: 'short', year: 'numeric' })} - {exp.isCurrent ? t('common.present') : (exp.endDate ? new Date(exp.endDate).toLocaleDateString('en', { month: 'short', year: 'numeric' }) : t('common.present'))}
                     </div>
                     {exp.location && (
                       <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md">
