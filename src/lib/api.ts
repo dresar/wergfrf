@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAdminStore } from "@/store/adminStore";
 
-const baseURL = "https://backend.ekasyarifmaulana.biz.id/api";
+const baseURL = "https://porto.apprentice.cyou/api";
 
 export const api = axios.create({
   baseURL,

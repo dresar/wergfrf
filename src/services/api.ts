@@ -1,5 +1,5 @@
 // API Service untuk koneksi ke backend
-const API_BASE_URL = "https://backend.ekasyarifmaulana.biz.id/api";
+const API_BASE_URL = "https://porto.apprentice.cyou/api";
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
