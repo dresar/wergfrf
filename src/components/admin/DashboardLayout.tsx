@@ -61,6 +61,7 @@ const navItems: NavItem[] = [
   { icon: Briefcase, label: 'Pengalaman', href: '/admin/experience' },
   { icon: GraduationCap, label: 'Pendidikan', href: '/admin/education' },
   { icon: Award, label: 'Sertifikat', href: '/admin/certificates' },
+  { icon: Image, label: 'Media', href: '/admin/media' },
   { icon: MessageSquare, label: 'Template WA', href: '/admin/wa-templates' },
   { icon: Inbox, label: 'Kotak Masuk', href: '/admin/inbox' },
   { icon: Settings, label: 'Pengaturan', href: '/admin/settings' },

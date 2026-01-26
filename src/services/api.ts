@@ -155,7 +155,8 @@ export const mediaAPI = {
     const formData = new FormData();
     formData.append('file', file);
     return apiCall('/upload/', { method: 'POST', body: formData });
-  }
+  },
+  getAll: () => apiCall('/media/list/')
 };
 
 // Blog Categories API

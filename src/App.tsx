@@ -89,6 +89,7 @@ const App = () => (
                         <Route path="/admin/blog" element={<BlogManager />} />
                         <Route path="/admin/blog/new" element={<BlogForm />} />
                         <Route path="/admin/blog/:id" element={<BlogForm />} />
+                        <Route path="/admin/media" element={<MediaManager />} />
                       </Route>
                     </Route>
 
