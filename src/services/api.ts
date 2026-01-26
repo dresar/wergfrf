@@ -1,5 +1,5 @@
 // API Service untuk koneksi ke backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend.ekasyarifmaulana.biz.id/api";
+const API_BASE_URL = "https://backend.ekasyarifmaulana.biz.id/api";
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit = {}) {

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://backend.ekasyarifmaulana.biz.id";
+const BACKEND_BASE_URL = "https://backend.ekasyarifmaulana.biz.id";
 
 export function normalizeMediaUrl(raw?: string | null) {
   if (!raw) return "";
