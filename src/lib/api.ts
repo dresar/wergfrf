@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useAdminStore } from "@/store/adminStore";
 
 const baseURL = "https://porto.apprentice.cyou/api";
 

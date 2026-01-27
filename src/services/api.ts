@@ -2,36 +2,14 @@
 const DIRECT_URL = "https://porto.apprentice.cyou/api";
 
 // Helper function untuk API calls
-export async function apiCall(endpoint: string, options: RequestInit & { purge?: boolean } = {}) {
+export async function apiCall(endpoint: string, options: RequestInit = {}) {
   try {
-    const token = localStorage.getItem('token');
-    const isFormData = options.body instanceof FormData;
     const headers: Record<string, string> = {
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
 
-    const method = options.method || 'GET';
-    let url;
-
-    // LOGIKA DUA PINTU
-    if (token || method !== 'GET') {
-      // MODE: ADMIN / EDIT (Direct ke Backend)
-      if (token) {
-        headers['Authorization'] = `Token ${token}`;
-      }
-      headers['Cache-Control'] = 'no-cache';
-      url = `${DIRECT_URL}${endpoint}`;
-    } else {
-      // MODE: PUBLIC / CACHE (Lewat Proxy Vercel)
-      // JIKA (Token KOSONG) DAN (Method GET)
-      const params = new URLSearchParams();
-      params.append('endpoint', endpoint);
-      if (options.purge) {
-        params.append('purge', 'true');
-      }
-      url = `/api/proxy?${params.toString()}`;
-    }
+    const url = `${DIRECT_URL}${endpoint}`;
 
     const response = await fetch(url, {
       ...options,
@@ -39,11 +17,6 @@ export async function apiCall(endpoint: string, options: RequestInit & { purge?:
     });
 
     if (!response.ok) {
-      if (response.status === 401) {
-        // Handle unauthorized (optional: redirect to login or clear token)
-        // localStorage.removeItem('token');
-      }
-      
       let errorMessage = `HTTP error! status: ${response.status}`;
       try {
         const errorData = await response.json();
@@ -71,106 +44,70 @@ export async function apiCall(endpoint: string, options: RequestInit & { purge?:
 // Profile API
 export const profileAPI = {
   get: () => apiCall('/profile/'),
-  create: (data: any) => apiCall('/profile/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/profile/${id}/`, { method: 'PATCH', body: data instanceof FormData ? data : JSON.stringify(data) }),
 };
 
 // Projects API
-export const projectsAPI = {                                                                        
+export const projectsAPI = {
   getAll: () => apiCall('/projects/'),
   getById: (id: number) => apiCall(`/projects/${id}/`),
-  create: (data: any) => apiCall('/projects/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/projects/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/projects/${id}/`, { method: 'DELETE' }),
-  deleteImage: (projectId: number, imageId: number) => apiCall(`/projects/${projectId}/delete_image/`, { method: 'POST', body: JSON.stringify({ image_id: imageId }) }),
-  reorder: (items: { id: number; order: number }[]) => apiCall('/projects/reorder/', { method: 'POST', body: JSON.stringify({ items }) }),
 };
 
 // Project Categories API
 export const projectCategoriesAPI = {
   getAll: () => apiCall('/project-categories/'),
-  create: (data: any) => apiCall('/project-categories/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/project-categories/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/project-categories/${id}/`, { method: 'DELETE' }),
 };
 
 // Experience API
 export const experienceAPI = {
   getAll: () => apiCall('/experience/'),
-  create: (data: any) => apiCall('/experience/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/experience/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/experience/${id}/`, { method: 'DELETE' }),
 };
 
 // Skills API
 export const skillsAPI = {
   getAll: () => apiCall('/skills/'),
-  create: (data: any) => apiCall('/skills/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/skills/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/skills/${id}/`, { method: 'DELETE' }),
 };
 
 // Skill Categories API
 export const skillCategoriesAPI = {
   getAll: () => apiCall('/skill-categories/'),
-  create: (data: any) => apiCall('/skill-categories/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/skill-categories/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/skill-categories/${id}/`, { method: 'DELETE' }),
 };
 
 // Certificate Categories API
 export const certificateCategoriesAPI = {
   getAll: () => apiCall('/certificate-categories/'),
-  create: (data: any) => apiCall('/certificate-categories/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/certificate-categories/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/certificate-categories/${id}/`, { method: 'DELETE' }),
 };
 
 // Education API
 export const educationAPI = {
   getAll: () => apiCall('/education/'),
-  create: (data: any) => apiCall('/education/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/education/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/education/${id}/`, { method: 'DELETE' }),
 };
 
 // Certificates API
 export const certificatesAPI = {
   getAll: () => apiCall('/certificates/'),
-  create: (data: any) => apiCall('/certificates/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/certificates/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/certificates/${id}/`, { method: 'DELETE' }),
 };
 
 // Social Links API
 export const socialLinksAPI = {
   getAll: () => apiCall('/social-links/'),
-  create: (data: any) => apiCall('/social-links/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/social-links/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/social-links/${id}/`, { method: 'DELETE' }),
 };
 
-// Messages API
+// Messages API (Public POST only)
 export const messagesAPI = {
-  getAll: () => apiCall('/messages/'),
-  create: (data: any) => apiCall('/messages/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/messages/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/messages/${id}/`, { method: 'DELETE' }),
+  create: (data: any) => apiCall('/messages/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 };
 
 // Site Settings API
 export const siteSettingsAPI = {
   get: () => apiCall('/settings/'),
-  create: (data: any) => apiCall('/settings/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/settings/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
 };
 
-// WA Templates API
+// WA Templates API (Public GET)
 export const waTemplatesAPI = {
   getAll: () => apiCall('/wa-templates/'),
-  create: (data: any) => apiCall('/wa-templates/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/wa-templates/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/wa-templates/${id}/`, { method: 'DELETE' }),
 };
 
 // Health check
@@ -178,22 +115,9 @@ export const healthAPI = {
   check: () => apiCall('/health/'),
 };
 
-// Media Upload API
-export const mediaAPI = {
-  upload: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return apiCall('/upload/', { method: 'POST', body: formData });
-  },
-  getAll: () => apiCall('/media/list/')
-};
-
 // Blog Categories API
 export const blogCategoriesAPI = {
   getAll: () => apiCall('/blog-categories/'),
-  create: (data: any) => apiCall('/blog-categories/', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/blog-categories/${id}/`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/blog-categories/${id}/`, { method: 'DELETE' }),
 };
 
 // Blog Posts API
@@ -201,46 +125,14 @@ export const blogPostsAPI = {
   getAll: () => apiCall('/blog-posts/'),
   getBySlug: (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
   getById: (id: number) => apiCall(`/blog-posts/${id}/`),
-  create: (data: any) => apiCall('/blog-posts/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/blog-posts/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/blog-posts/${id}/`, { method: 'DELETE' }),
-};
-
-// Subscribers API
-export const subscribersAPI = {
-  getAll: () => apiCall('/subscribers/'),
-  create: (data: any) => apiCall('/subscribers/', { method: 'POST', body: JSON.stringify(data) }),
-  delete: (id: number) => apiCall(`/subscribers/${id}/`, { method: 'DELETE' }),
 };
 
 // Home Content API
 export const homeContentAPI = {
   get: () => apiCall('/home-content/'),
-  create: (data: any) => apiCall('/home-content/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/home-content/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
 };
 
 // About Content API
 export const aboutContentAPI = {
   get: () => apiCall('/about-content/'),
-  create: (data: any) => apiCall('/about-content/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  update: (id: number, data: any) => apiCall(`/about-content/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
-  patch: (id: number, data: any) => apiCall(`/about-content/${id}/`, { method: 'PATCH', body: data instanceof FormData ? data : JSON.stringify(data) }),
-};
-
-// AI API
-export const aiAPI = {
-  write: (data: { topic: string; tone: string; type: string }) => apiCall('/ai/write/', { method: 'POST', body: JSON.stringify(data) }),
-  analyzeMessage: (data: { message: string; sender: string }) => apiCall('/ai/analyze-message/', { method: 'POST', body: JSON.stringify(data) }),
-  chat: (data: { query: string; context: string }) => apiCall('/ai/chat/', { method: 'POST', body: JSON.stringify(data) }),
-  seo: (data: { content: string; keyword: string }) => apiCall('/ai/seo/', { method: 'POST', body: JSON.stringify(data) }),
-};
-
-// AI Keys API
-export const aiKeysAPI = {
-  getAll: () => apiCall('/ai/keys/'),
-  add: (data: any) => apiCall('/ai/keys/add/', { method: 'POST', body: JSON.stringify(data) }),
-  upload: (data: FormData) => apiCall('/ai/upload-keys/', { method: 'POST', body: data }),
-  delete: (id: number) => apiCall(`/ai/keys/${id}/`, { method: 'DELETE' }),
-  test: (id: number) => apiCall(`/ai/keys/${id}/test/`, { method: 'POST' }),
 };

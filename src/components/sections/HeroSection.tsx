@@ -75,8 +75,8 @@ export const HeroSection = () => {
     roles = ['Developer'];
   }
   
-  // Hero Image logic: HomeContent > Profile
-  const heroImageRaw = homeContent?.heroImageFile || homeContent?.heroImage || profile?.heroImageFile || profile?.heroImage;
+  // Hero Image logic
+  const heroImageRaw = profile?.heroImageFile || profile?.heroImage;
   const heroImage = normalizeMediaUrl(heroImageRaw);
 
   // Calculate years of experience

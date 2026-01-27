@@ -3,7 +3,6 @@ import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
 import { useTranslation } from 'react-i18next';
 import { useProfile } from '@/hooks/useProfile';
-import { useAdminStore } from '@/store/adminStore';
 import { useExperience } from '@/hooks/useExperience';
 import { useProjects } from '@/hooks/useProjects';
 import { useCertificates } from '@/hooks/useCertificates';
@@ -27,15 +26,11 @@ const socialIcons: Record<string, any> = {
 export const AboutSection = () => {
   const { t, i18n } = useTranslation();
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.3 });
-  const { profile: queryProfile } = useProfile();
-  const { aboutContent, profile: storeProfile } = useAdminStore();
+  const { profile } = useProfile();
   const { experiences = [], isLoading } = useExperience();
   const { projects = [] } = useProjects();
   const { certificates = [] } = useCertificates();
   const { skills = [] } = useSkills();
-  
-  // Prefer queryProfile (fresh from API) but fall back to storeProfile (updated by admin)
-  const profile = queryProfile || storeProfile;
   
   // Use backend counts if available (injected by ProfileViewSet), otherwise fallback to array length
   // Use a safer fallback that checks if arrays are loaded
@@ -54,17 +49,12 @@ export const AboutSection = () => {
   // Determine localized content
   const currentLang = i18n.language === 'en' ? 'en' : 'id';
   
-  // Use AboutContent if available, otherwise fallback
-  const shortDesc = (aboutContent 
-    ? (currentLang === 'en' ? aboutContent.short_description_en : aboutContent.short_description_id)
-    : null) || (aboutContent?.short_description_id) || profile?.greeting || "";
+  const shortDesc = profile?.greeting || "";
     
-  const longDesc = (aboutContent 
-    ? (currentLang === 'en' ? aboutContent.long_description_en : aboutContent.long_description_id)
-    : null) || (aboutContent?.long_description_id) || profile?.bio;
+  const longDesc = profile?.bio;
 
-  // About Image logic: AboutContent > Profile
-  const rawAboutImage = aboutContent?.aboutImageFile || aboutContent?.aboutImage || profile?.aboutImageFile || profile?.aboutImage;
+  // About Image logic
+  const rawAboutImage = profile?.aboutImageFile || profile?.aboutImage;
   const aboutImage = normalizeMediaUrl(rawAboutImage);
 
   // Calculate years of experience

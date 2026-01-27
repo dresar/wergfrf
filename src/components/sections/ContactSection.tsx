@@ -7,7 +7,7 @@ import { useSocialLinks } from '@/hooks/useSocialLinks';
 import { useMutation } from '@tanstack/react-query';
 import { messagesAPI } from '@/services/api';
 import { ShinyButton } from '@/components/effects/Buttons';
-import { type SocialLink } from '@/store/adminStore';
+import { type SocialLink } from '@/types';
 import { toast } from 'sonner';
 
 const socialIcons: Record<string, any> = {

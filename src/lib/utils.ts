@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useAdminStore } from "@/store/adminStore";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -19,15 +18,6 @@ export function normalizeMediaUrl(raw?: string | null) {
     url = url.replace("http://127.0.0.1:8000", "");
   } else if (import.meta.env.VITE_BACKEND_URL && url.startsWith(import.meta.env.VITE_BACKEND_URL)) {
       url = url.replace(import.meta.env.VITE_BACKEND_URL, "");
-  }
-
-  const settings = useAdminStore.getState().settings;
-  const cdnUrl = settings?.cdn_url;
-
-  if (cdnUrl && (url.startsWith("/media/") || url.startsWith("media/"))) {
-    const cleanCdnUrl = cdnUrl.endsWith('/') ? cdnUrl.slice(0, -1) : cdnUrl;
-    const cleanPath = url.startsWith('/') ? url : `/${url}`;
-    return `${cleanCdnUrl}${cleanPath}`;
   }
 
   if (url.startsWith("/media/") || url.startsWith("/static/")) {
