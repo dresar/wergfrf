@@ -1,7 +1,7 @@
 import { apiCall } from "./api";
 
 type LoginCredentials = {
-  email: string;
+  identifier: string;
   password: string;
   captcha?: string;
   captchaHash?: string;
