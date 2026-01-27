@@ -91,6 +91,8 @@ export const RichTextEditor = ({ content, onChange, placeholder, enableAI = true
     extensions: [
       StarterKit.configure({
         codeBlock: false, // Disable default codeBlock to use lowlight
+        link: false,
+        underline: false,
       }),
       CodeBlockLowlight.configure({
         lowlight,
