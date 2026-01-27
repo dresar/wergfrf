@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAdminStore } from "@/store/adminStore";
 
-const baseURL = "https://porto.apprentice.cyou/api";
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 export const api = axios.create({
   baseURL,
@@ -19,5 +19,4 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 

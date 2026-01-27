@@ -1,5 +1,5 @@
 // API Service untuk koneksi ke backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://porto.apprentice.cyou/api";
+const DIRECT_URL = "https://porto.apprentice.cyou/api";
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit & { purge?: boolean } = {}) {
@@ -14,24 +14,23 @@ export async function apiCall(endpoint: string, options: RequestInit & { purge?:
     const method = options.method || 'GET';
     let url;
 
-    // LOGIKA SMART SWITCH (Hybrid Caching)
-    if (token) {
-      // JIKA ADMIN (Ada Token) -> Mode: REALTIME / EDIT
-      headers['Authorization'] = `Token ${token}`;
-      headers['Cache-Control'] = 'no-cache'; // Paksa ambil data segar
-      url = `${API_BASE_URL}${endpoint}`;
-    } else if (method === 'GET') {
-      // JIKA PUBLIC (Tidak Ada Token) & GET -> Mode: STATIC / HEMAT RAM
-      // Gunakan Vercel Proxy untuk caching
+    // LOGIKA DUA PINTU
+    if (token || method !== 'GET') {
+      // MODE: ADMIN / EDIT (Direct ke Backend)
+      if (token) {
+        headers['Authorization'] = `Token ${token}`;
+      }
+      headers['Cache-Control'] = 'no-cache';
+      url = `${DIRECT_URL}${endpoint}`;
+    } else {
+      // MODE: PUBLIC / CACHE (Lewat Proxy Vercel)
+      // JIKA (Token KOSONG) DAN (Method GET)
       const params = new URLSearchParams();
       params.append('endpoint', endpoint);
       if (options.purge) {
         params.append('purge', 'true');
       }
       url = `/api/proxy?${params.toString()}`;
-    } else {
-      // JIKA POST/PUT/DELETE (Write) -> Tembak Langsung
-      url = `${API_BASE_URL}${endpoint}`;
     }
 
     const response = await fetch(url, {

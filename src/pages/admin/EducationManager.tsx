@@ -41,7 +41,6 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { type Education } from '@/store/adminStore';
-import { Loader2 } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,

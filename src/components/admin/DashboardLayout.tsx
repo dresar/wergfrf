@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  // Bell, // Commented out temporarily
   Moon,
   Sun,
   User,
@@ -24,6 +23,7 @@ import {
   Briefcase,
   Code2,
   HelpCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAdminStore } from '@/store/adminStore';
@@ -61,7 +61,7 @@ const navItems: NavItem[] = [
   { icon: Briefcase, label: 'Pengalaman', href: '/admin/experience' },
   { icon: GraduationCap, label: 'Pendidikan', href: '/admin/education' },
   { icon: Award, label: 'Sertifikat', href: '/admin/certificates' },
-  { icon: Image, label: 'Media', href: '/admin/media' },
+  { icon: ImageIcon, label: 'Media', href: '/admin/media' },
   { icon: MessageSquare, label: 'Template WA', href: '/admin/wa-templates' },
   { icon: Inbox, label: 'Kotak Masuk', href: '/admin/inbox' },
   { icon: Settings, label: 'Pengaturan', href: '/admin/settings' },
