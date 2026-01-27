@@ -30,7 +30,15 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(targetUrl, fetchOptions);
-    const data = await response.json();
+    
+    // Handle non-JSON responses (e.g. 404 HTML pages)
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+    } else {
+        data = { error: await response.text(), status: response.status };
+    }
 
     // Set Cache-Control
     if (purge === 'true') {
