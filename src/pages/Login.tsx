@@ -121,6 +121,36 @@ const Login = () => {
                 disabled={isBlocked}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="captcha" className="text-slate-300">Kode Keamanan</Label>
+              <div className="flex gap-2">
+                <div className="select-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 font-mono text-lg font-bold tracking-widest text-indigo-400 w-32 text-center">
+                  {generatedCaptcha}
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={generateCaptcha}
+                  className="border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+                  title="Ganti Kode"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                </Button>
+              </div>
+              <Input
+                id="captcha"
+                type="text"
+                placeholder="Ketik kode di atas"
+                value={captcha}
+                onChange={(e) => setCaptcha(e.target.value)}
+                required
+                className="bg-slate-950/50 border-slate-700 text-slate-100 placeholder:text-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20 uppercase"
+                disabled={isBlocked}
+              />
+            </div>
+
             <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25 border-0 transition-all duration-300" 
