@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { api } from '@/lib/api';
+import {
+  projectsAPI, messagesAPI, subscribersAPI, skillsAPI, experienceAPI,
+  educationAPI, certificatesAPI, socialLinksAPI, projectCategoriesAPI,
+  skillCategoriesAPI, certificateCategoriesAPI, siteSettingsAPI,
+  profileAPI, homeContentAPI, aboutContentAPI, waTemplatesAPI
+} from '@/services/api';
 
 // Initialize dark mode
 if (typeof document !== 'undefined') {
@@ -331,78 +336,78 @@ export const useAdminStore = create<AdminState>()(
       // Load all initial data from backend
       fetchInitialData: async () => {
         const [
-          projectsRes,
-          messagesRes,
-          subscribersRes,
-          skillsRes,
-          experiencesRes,
-          educationRes,
-          certificatesRes,
-          socialLinksRes,
-          projectCategoriesRes,
-          skillCategoriesRes,
-          certificateCategoriesRes,
-          settingsRes,
-          profileRes,
-          homeContentRes,
-          aboutContentRes,
-          waTemplatesRes,
+          projects,
+          messages,
+          subscribers,
+          skills,
+          experiences,
+          education,
+          certificates,
+          socialLinks,
+          projectCategories,
+          skillCategories,
+          certificateCategories,
+          settings,
+          profile,
+          homeContent,
+          aboutContent,
+          waTemplates,
         ] = await Promise.all([
-          api.get<Project[]>('/projects/'),
-          api.get<Message[]>('/messages/'),
-          api.get<Subscriber[]>('/subscribers/').catch(() => ({ data: [] })),
-          api.get<Skill[]>('/skills/'),
-          api.get<Experience[]>('/experience/'),
-          api.get<Education[]>('/education/'),
-          api.get<Certificate[]>('/certificates/'),
-          api.get<SocialLink[]>('/social-links/'),
-          api.get<ProjectCategory[]>('/project-categories/'),
-          api.get<SkillCategory[]>('/skill-categories/'),
-          api.get<CertificateCategory[]>('/certificate-categories/'),
-          api.get<SiteSettings | null>('/settings/'),
-          api.get<Profile | null>('/profile/'),
-          api.get<HomeContent | null>('/home-content/').catch(() => ({ data: null })),
-          api.get<AboutContent | null>('/about-content/').catch(() => ({ data: null })),
-          api.get<WATemplate[]>('/wa-templates/'),
+          projectsAPI.getAll(),
+          messagesAPI.getAll(),
+          subscribersAPI.getAll().catch(() => []),
+          skillsAPI.getAll(),
+          experienceAPI.getAll(),
+          educationAPI.getAll(),
+          certificatesAPI.getAll(),
+          socialLinksAPI.getAll(),
+          projectCategoriesAPI.getAll(),
+          skillCategoriesAPI.getAll(),
+          certificateCategoriesAPI.getAll(),
+          siteSettingsAPI.get(),
+          profileAPI.get(),
+          homeContentAPI.get().catch(() => null),
+          aboutContentAPI.get().catch(() => null),
+          waTemplatesAPI.getAll(),
         ]);
 
         set({
-          projects: projectsRes.data,
-          messages: messagesRes.data,
-          subscribers: subscribersRes.data ?? [],
-          skills: skillsRes.data,
-          experiences: experiencesRes.data,
-          education: educationRes.data,
-          certificates: certificatesRes.data,
-          socialLinks: socialLinksRes.data,
-          projectCategories: projectCategoriesRes.data,
-          skillCategories: skillCategoriesRes.data,
-          certificateCategories: certificateCategoriesRes.data,
-          settings: settingsRes.data || emptySiteSettings,
-          profile: profileRes.data,
-          homeContent: homeContentRes.data,
-          aboutContent: aboutContentRes.data,
-          waTemplates: waTemplatesRes.data,
+          projects,
+          messages,
+          subscribers: subscribers ?? [],
+          skills,
+          experiences,
+          education,
+          certificates,
+          socialLinks,
+          projectCategories,
+          skillCategories,
+          certificateCategories,
+          settings: settings || emptySiteSettings,
+          profile,
+          homeContent,
+          aboutContent,
+          waTemplates,
         });
       },
 
       // WA Template Actions
       addWATemplate: async (template) => {
-        const res = await api.post<WATemplate>('/wa-templates/', template);
+        const data = await waTemplatesAPI.create(template);
         set((state) => ({
-          waTemplates: [...state.waTemplates, res.data],
+          waTemplates: [...state.waTemplates, data],
         }));
       },
 
       updateWATemplate: async (id, data) => {
-        const res = await api.put<WATemplate>(`/wa-templates/${id}/`, data);
+        const updated = await waTemplatesAPI.update(id, data);
         set((state) => ({
-          waTemplates: state.waTemplates.map((t) => (t.id === id ? res.data : t)),
+          waTemplates: state.waTemplates.map((t) => (t.id === id ? updated : t)),
         }));
       },
 
       deleteWATemplate: async (id) => {
-        await api.delete(`/wa-templates/${id}/`);
+        await waTemplatesAPI.delete(id);
         set((state) => ({
           waTemplates: state.waTemplates.filter((t) => t.id !== id),
         }));
@@ -410,21 +415,21 @@ export const useAdminStore = create<AdminState>()(
 
       // Project Category Actions
       addProjectCategory: async (category) => {
-        const res = await api.post<ProjectCategory>('/project-categories/', category);
+        const data = await projectCategoriesAPI.create(category);
         set((state) => ({
-          projectCategories: [...state.projectCategories, res.data],
+          projectCategories: [...state.projectCategories, data],
         }));
       },
 
       updateProjectCategory: async (id, data) => {
-        const res = await api.put<ProjectCategory>(`/project-categories/${id}/`, data);
+        const updated = await projectCategoriesAPI.update(id, data);
         set((state) => ({
-          projectCategories: state.projectCategories.map((c) => (c.id === id ? res.data : c)),
+          projectCategories: state.projectCategories.map((c) => (c.id === id ? updated : c)),
         }));
       },
 
       deleteProjectCategory: async (id) => {
-        await api.delete(`/project-categories/${id}/`);
+        await projectCategoriesAPI.delete(id);
         set((state) => ({
           projectCategories: state.projectCategories.filter((c) => c.id !== id),
         }));
@@ -432,21 +437,21 @@ export const useAdminStore = create<AdminState>()(
 
       // Skill Category Actions
       addSkillCategory: async (category) => {
-        const res = await api.post<SkillCategory>('/skill-categories/', category);
+        const data = await skillCategoriesAPI.create(category);
         set((state) => ({
-          skillCategories: [...state.skillCategories, res.data],
+          skillCategories: [...state.skillCategories, data],
         }));
       },
 
       updateSkillCategory: async (id, data) => {
-        const res = await api.put<SkillCategory>(`/skill-categories/${id}/`, data);
+        const updated = await skillCategoriesAPI.update(id, data);
         set((state) => ({
-          skillCategories: state.skillCategories.map((c) => (c.id === id ? res.data : c)),
+          skillCategories: state.skillCategories.map((c) => (c.id === id ? updated : c)),
         }));
       },
 
       deleteSkillCategory: async (id) => {
-        await api.delete(`/skill-categories/${id}/`);
+        await skillCategoriesAPI.delete(id);
         set((state) => ({
           skillCategories: state.skillCategories.filter((c) => c.id !== id),
         }));
@@ -454,21 +459,21 @@ export const useAdminStore = create<AdminState>()(
 
       // Certificate Category Actions
       addCertificateCategory: async (category) => {
-        const res = await api.post<CertificateCategory>('/certificate-categories/', category);
+        const data = await certificateCategoriesAPI.create(category);
         set((state) => ({
-          certificateCategories: [...state.certificateCategories, res.data],
+          certificateCategories: [...state.certificateCategories, data],
         }));
       },
 
       updateCertificateCategory: async (id, data) => {
-        const res = await api.put<CertificateCategory>(`/certificate-categories/${id}/`, data);
+        const updated = await certificateCategoriesAPI.update(id, data);
         set((state) => ({
-          certificateCategories: state.certificateCategories.map((c) => (c.id === id ? res.data : c)),
+          certificateCategories: state.certificateCategories.map((c) => (c.id === id ? updated : c)),
         }));
       },
 
       deleteCertificateCategory: async (id) => {
-        await api.delete(`/certificate-categories/${id}/`);
+        await certificateCategoriesAPI.delete(id);
         set((state) => ({
           certificateCategories: state.certificateCategories.filter((c) => c.id !== id),
         }));
@@ -476,28 +481,28 @@ export const useAdminStore = create<AdminState>()(
 
       // Project Actions
       addProject: async (project) => {
-        const res = await api.post<Project>('/projects/', project);
+        const data = await projectsAPI.create(project);
         set((state) => ({
-          projects: [...state.projects, res.data],
+          projects: [...state.projects, data],
         }));
       },
 
       updateProject: async (id, data) => {
-        const res = await api.put<Project>(`/projects/${id}/`, data);
+        const updated = await projectsAPI.update(id, data);
         set((state) => ({
-          projects: state.projects.map((p) => (p.id === id ? res.data : p)),
+          projects: state.projects.map((p) => (p.id === id ? updated : p)),
         }));
         // Re-fetch projects to ensure we have the latest category details
         try {
-          const updatedProjectsRes = await api.get<Project[]>('/projects/');
-          set({ projects: updatedProjectsRes.data });
+          const updatedProjects = await projectsAPI.getAll();
+          set({ projects: updatedProjects });
         } catch (error) {
           console.error('Failed to refetch projects:', error);
         }
       },
 
       deleteProject: async (id) => {
-        await api.delete(`/projects/${id}/`);
+        await projectsAPI.delete(id);
         set((state) => ({
           projects: state.projects.filter((p) => p.id !== id),
         }));
@@ -505,7 +510,7 @@ export const useAdminStore = create<AdminState>()(
 
       // Message Actions
       markMessageRead: async (id) => {
-        await api.put(`/messages/${id}/`, { isRead: true });
+        await messagesAPI.update(id, { isRead: true });
         set((state) => ({
           messages: state.messages.map((m) =>
             m.id === id ? { ...m, isRead: true } : m
@@ -513,7 +518,7 @@ export const useAdminStore = create<AdminState>()(
         }));
       },
       markMessageUnread: async (id) => {
-        await api.put(`/messages/${id}/`, { isRead: false });
+        await messagesAPI.update(id, { isRead: false });
         set((state) => ({
           messages: state.messages.map((m) =>
             m.id === id ? { ...m, isRead: false } : m
@@ -521,20 +526,20 @@ export const useAdminStore = create<AdminState>()(
         }));
       },
       archiveMessage: async (id) => {
-        await api.delete(`/messages/${id}/`);
+        await messagesAPI.delete(id);
         set((state) => ({
           messages: state.messages.filter((m) => m.id !== id),
         }));
       },
 
       deleteMessage: async (id) => {
-        await api.delete(`/messages/${id}/`);
+        await messagesAPI.delete(id);
         set((state) => ({
           messages: state.messages.filter((m) => m.id !== id),
         }));
       },
       deleteMessages: async (ids) => {
-        await Promise.all(ids.map((id) => api.delete(`/messages/${id}/`)));
+        await Promise.all(ids.map((id) => messagesAPI.delete(id)));
         set((state) => ({
           messages: state.messages.filter((m) => !ids.includes(m.id)),
         }));
@@ -543,7 +548,7 @@ export const useAdminStore = create<AdminState>()(
       // Subscriber Actions
       deleteSubscriber: async (id) => {
         try {
-          await api.delete(`/subscribers/${id}/`);
+          await subscribersAPI.delete(id);
         } catch (error) {
           console.error(error);
         }
@@ -564,21 +569,21 @@ export const useAdminStore = create<AdminState>()(
 
       // Skill Actions
       addSkill: async (skill) => {
-        const res = await api.post<Skill>('/skills/', skill);
+        const data = await skillsAPI.create(skill);
         set((state) => ({
-          skills: [...state.skills, res.data],
+          skills: [...state.skills, data],
         }));
       },
 
       updateSkill: async (id, data) => {
-        const res = await api.put<Skill>(`/skills/${id}/`, data);
+        const updated = await skillsAPI.update(id, data);
         set((state) => ({
-          skills: state.skills.map((s) => (s.id === id ? res.data : s)),
+          skills: state.skills.map((s) => (s.id === id ? updated : s)),
         }));
       },
 
       deleteSkill: async (id) => {
-        await api.delete(`/skills/${id}/`);
+        await skillsAPI.delete(id);
         set((state) => ({
           skills: state.skills.filter((s) => s.id !== id),
         }));
@@ -586,23 +591,23 @@ export const useAdminStore = create<AdminState>()(
 
       // Experience Actions
       addExperience: async (exp) => {
-        const res = await api.post<Experience>('/experience/', exp);
+        const data = await experienceAPI.create(exp);
         set((state) => ({
-          experiences: [...state.experiences, res.data],
+          experiences: [...state.experiences, data],
         }));
       },
 
       updateExperience: async (id, data) => {
-        const res = await api.put<Experience>(`/experience/${id}/`, data);
+        const updated = await experienceAPI.update(id, data);
         set((state) => ({
           experiences: state.experiences.map((e) =>
-            e.id === id ? res.data : e
+            e.id === id ? updated : e
           ),
         }));
       },
 
       deleteExperience: async (id) => {
-        await api.delete(`/experience/${id}/`);
+        await experienceAPI.delete(id);
         set((state) => ({
           experiences: state.experiences.filter((e) => e.id !== id),
         }));
@@ -610,23 +615,23 @@ export const useAdminStore = create<AdminState>()(
 
       // Education Actions
       addEducation: async (edu) => {
-        const res = await api.post<Education>('/education/', edu);
+        const data = await educationAPI.create(edu);
         set((state) => ({
-          education: [...state.education, res.data],
+          education: [...state.education, data],
         }));
       },
 
       updateEducation: async (id, data) => {
-        const res = await api.put<Education>(`/education/${id}/`, data);
+        const updated = await educationAPI.update(id, data);
         set((state) => ({
           education: state.education.map((e) =>
-            e.id === id ? res.data : e
+            e.id === id ? updated : e
           ),
         }));
       },
 
       deleteEducation: async (id) => {
-        await api.delete(`/education/${id}/`);
+        await educationAPI.delete(id);
         set((state) => ({
           education: state.education.filter((e) => e.id !== id),
         }));
@@ -634,23 +639,23 @@ export const useAdminStore = create<AdminState>()(
 
       // Certificate Actions
       addCertificate: async (cert) => {
-        const res = await api.post<Certificate>('/certificates/', cert);
+        const data = await certificatesAPI.create(cert);
         set((state) => ({
-          certificates: [...state.certificates, res.data],
+          certificates: [...state.certificates, data],
         }));
       },
 
       updateCertificate: async (id, data) => {
-        const res = await api.put<Certificate>(`/certificates/${id}/`, data);
+        const updated = await certificatesAPI.update(id, data);
         set((state) => ({
           certificates: state.certificates.map((c) =>
-            c.id === id ? res.data : c
+            c.id === id ? updated : c
           ),
         }));
       },
 
       deleteCertificate: async (id) => {
-        await api.delete(`/certificates/${id}/`);
+        await certificatesAPI.delete(id);
         set((state) => ({
           certificates: state.certificates.filter((c) => c.id !== id),
         }));
@@ -658,23 +663,23 @@ export const useAdminStore = create<AdminState>()(
 
       // Social Link Actions
       addSocialLink: async (link) => {
-        const res = await api.post<SocialLink>('/social-links/', link);
+        const data = await socialLinksAPI.create(link);
         set((state) => ({
-          socialLinks: [...state.socialLinks, res.data],
+          socialLinks: [...state.socialLinks, data],
         }));
       },
 
       updateSocialLink: async (id, data) => {
-        const res = await api.put<SocialLink>(`/social-links/${id}/`, data);
+        const updated = await socialLinksAPI.update(id, data);
         set((state) => ({
           socialLinks: state.socialLinks.map((l) =>
-            l.id === id ? res.data : l
+            l.id === id ? updated : l
           ),
         }));
       },
 
       deleteSocialLink: async (id) => {
-        await api.delete(`/social-links/${id}/`);
+        await socialLinksAPI.delete(id);
         set((state) => ({
           socialLinks: state.socialLinks.filter((l) => l.id !== id),
         }));
@@ -683,51 +688,51 @@ export const useAdminStore = create<AdminState>()(
       // Settings Actions
       updateSettings: async (data) => {
         const current = get().settings ?? emptySiteSettings;
-        const res = await api.put<SiteSettings>(`/settings/${current.id}/`, {
+        const updated = await siteSettingsAPI.update(current.id, {
           ...current,
           ...data,
         });
-        set({ settings: res.data });
+        set({ settings: updated });
       },
 
       updateProfile: async (data: any) => {
         const current = get().profile;
         // Check if profile exists and has an ID
         if (!current || !current.id) {
-          const res = await api.post<Profile>('/profile/', data);
-          set({ profile: res.data });
+          const res = await profileAPI.create(data);
+          set({ profile: res });
           return;
         }
         
         // If data is FormData, send it directly. Otherwise merge with current.
         const payload = data instanceof FormData ? data : { ...current, ...data };
           
-          const res = await api.patch<Profile>(`/profile/${current.id}/`, payload);
-          set({ profile: res.data });
+          const res = await profileAPI.update(current.id, payload);
+          set({ profile: res });
       },
 
       updateHomeContent: async (data: any) => {
         const current = get().homeContent;
         if (!current || !current.id) {
-          const res = await api.post<HomeContent>('/home-content/', data);
-          set({ homeContent: res.data });
+          const res = await homeContentAPI.create(data);
+          set({ homeContent: res });
           return;
         }
         const payload = data instanceof FormData ? data : { ...current, ...data };
-        const res = await api.patch<HomeContent>(`/home-content/${current.id}/`, payload);
-        set({ homeContent: res.data });
+        const res = await homeContentAPI.update(current.id, payload);
+        set({ homeContent: res });
       },
 
       updateAboutContent: async (data: any) => {
         const current = get().aboutContent;
         if (!current || !current.id) {
-          const res = await api.post<AboutContent>('/about-content/', data);
-          set({ aboutContent: res.data });
+          const res = await aboutContentAPI.create(data);
+          set({ aboutContent: res });
           return;
         }
         const payload = data instanceof FormData ? data : { ...current, ...data };
-        const res = await api.patch<AboutContent>(`/about-content/${current.id}/`, payload);
-        set({ aboutContent: res.data });
+        const res = await aboutContentAPI.update(current.id, payload);
+        set({ aboutContent: res });
       },
 
       // UI Actions

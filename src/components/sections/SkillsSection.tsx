@@ -4,7 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useSkills } from '@/hooks/useSkills';
-import { api } from '@/lib/api';
+import { skillCategoriesAPI } from '@/services/api';
 import { TiltedCard } from '@/components/effects/Cards';
 import { Code2, Palette, Users, Globe, Loader2, Database, Cloud } from 'lucide-react';
 
@@ -32,8 +32,8 @@ export const SkillsSection = () => {
   const { data: categories = [], isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['skillCategories'],
     queryFn: async () => {
-      const res = await api.get<SkillCategory[]>('/skill-categories/');
-      return res.data;
+      const data = await skillCategoriesAPI.getAll();
+      return data;
     }
   });
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { aiAPI } from '@/services/api';
 import { toast } from 'sonner';
 
 export const useAI = () => {
@@ -8,10 +8,10 @@ export const useAI = () => {
   const generateContent = async (topic: string, tone: string = 'professional', type: string = 'blog') => {
     setIsGenerating(true);
     try {
-      const response = await api.post('/ai/write/', { topic, tone, type });
-      return response.data.content;
+      const content = await aiAPI.write({ topic, tone, type });
+      return content.content;
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to generate content');
+      toast.error(error.message || 'Failed to generate content');
       throw error;
     } finally {
       setIsGenerating(false);
@@ -21,10 +21,10 @@ export const useAI = () => {
   const analyzeMessage = async (message: string, sender: string) => {
     setIsGenerating(true);
     try {
-      const response = await api.post('/ai/analyze-message/', { message, sender });
-      return response.data;
+      const data = await aiAPI.analyzeMessage({ message, sender });
+      return data;
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to analyze message');
+      toast.error(error.message || 'Failed to analyze message');
       throw error;
     } finally {
       setIsGenerating(false);
@@ -34,10 +34,10 @@ export const useAI = () => {
   const askCopilot = async (query: string, context: string = '') => {
     setIsGenerating(true);
     try {
-      const response = await api.post('/ai/chat/', { query, context });
-      return response.data.response;
+      const response = await aiAPI.chat({ query, context });
+      return response.response;
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Copilot failed to respond');
+      toast.error(error.message || 'Copilot failed to respond');
       throw error;
     } finally {
       setIsGenerating(false);
@@ -47,10 +47,10 @@ export const useAI = () => {
   const optimizeSEO = async (content: string, keyword: string = '') => {
     setIsGenerating(true);
     try {
-      const response = await api.post('/ai/seo/', { content, keyword });
-      return response.data;
+      const data = await aiAPI.seo({ content, keyword });
+      return data;
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'SEO optimization failed');
+      toast.error(error.message || 'SEO optimization failed');
       throw error;
     } finally {
       setIsGenerating(false);

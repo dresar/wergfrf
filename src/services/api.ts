@@ -43,7 +43,18 @@ export async function apiCall(endpoint: string, options: RequestInit & { purge?:
         // Handle unauthorized (optional: redirect to login or clear token)
         // localStorage.removeItem('token');
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+        // ignore json parse error
+      }
+      
+      const error = new Error(errorMessage) as any;
+      error.status = response.status;
+      throw error;
     }
 
     if (response.status === 204) {
@@ -193,4 +204,43 @@ export const blogPostsAPI = {
   create: (data: any) => apiCall('/blog-posts/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
   update: (id: number, data: any) => apiCall(`/blog-posts/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
   delete: (id: number) => apiCall(`/blog-posts/${id}/`, { method: 'DELETE' }),
+};
+
+// Subscribers API
+export const subscribersAPI = {
+  getAll: () => apiCall('/subscribers/'),
+  create: (data: any) => apiCall('/subscribers/', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id: number) => apiCall(`/subscribers/${id}/`, { method: 'DELETE' }),
+};
+
+// Home Content API
+export const homeContentAPI = {
+  get: () => apiCall('/home-content/'),
+  create: (data: any) => apiCall('/home-content/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
+  update: (id: number, data: any) => apiCall(`/home-content/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
+};
+
+// About Content API
+export const aboutContentAPI = {
+  get: () => apiCall('/about-content/'),
+  create: (data: any) => apiCall('/about-content/', { method: 'POST', body: data instanceof FormData ? data : JSON.stringify(data) }),
+  update: (id: number, data: any) => apiCall(`/about-content/${id}/`, { method: 'PUT', body: data instanceof FormData ? data : JSON.stringify(data) }),
+  patch: (id: number, data: any) => apiCall(`/about-content/${id}/`, { method: 'PATCH', body: data instanceof FormData ? data : JSON.stringify(data) }),
+};
+
+// AI API
+export const aiAPI = {
+  write: (data: { topic: string; tone: string; type: string }) => apiCall('/ai/write/', { method: 'POST', body: JSON.stringify(data) }),
+  analyzeMessage: (data: { message: string; sender: string }) => apiCall('/ai/analyze-message/', { method: 'POST', body: JSON.stringify(data) }),
+  chat: (data: { query: string; context: string }) => apiCall('/ai/chat/', { method: 'POST', body: JSON.stringify(data) }),
+  seo: (data: { content: string; keyword: string }) => apiCall('/ai/seo/', { method: 'POST', body: JSON.stringify(data) }),
+};
+
+// AI Keys API
+export const aiKeysAPI = {
+  getAll: () => apiCall('/ai/keys/'),
+  add: (data: any) => apiCall('/ai/keys/add/', { method: 'POST', body: JSON.stringify(data) }),
+  upload: (data: FormData) => apiCall('/ai/upload-keys/', { method: 'POST', body: data }),
+  delete: (id: number) => apiCall(`/ai/keys/${id}/`, { method: 'DELETE' }),
+  test: (id: number) => apiCall(`/ai/keys/${id}/test/`, { method: 'POST' }),
 };

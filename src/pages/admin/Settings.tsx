@@ -29,7 +29,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { normalizeMediaUrl } from '@/lib/utils';
 import { useProfile } from '@/hooks/useProfile';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
-import { api } from '@/lib/api';
+import { aiKeysAPI, apiCall } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -141,17 +141,17 @@ const Settings = () => {
     // Check each endpoint
     for (const endpoint of endpoints) {
       try {
-        const response = await api.get(`/${endpoint}/`);
+        await apiCall(`/${endpoint}/`);
         setApiStatus(prev => ({
           ...prev,
-          [endpoint]: { status: 'ok', code: response.status }
+          [endpoint]: { status: 'ok', code: 200 }
         }));
       } catch (error: any) {
         setApiStatus(prev => ({
           ...prev,
           [endpoint]: { 
             status: 'error', 
-            code: error.response?.status, 
+            code: error.status || 500, 
             message: error.message 
           }
         }));
@@ -169,8 +169,8 @@ const Settings = () => {
   const fetchAiKeys = async () => {
     try {
       setLoadingKeys(true);
-      const res = await api.get('/ai/keys/');
-      setAiKeys(res.data);
+      const data = await aiKeysAPI.getAll();
+      setAiKeys(data);
     } catch (error) {
       console.error('Failed to fetch AI keys', error);
     } finally {
@@ -187,18 +187,18 @@ const Settings = () => {
   const handleTestKey = async (id: number) => {
     try {
       setTestingKeyId(id);
-      const res = await api.post(`/ai/keys/${id}/test/`);
+      const data = await aiKeysAPI.test(id);
       setTestResults(prev => ({
         ...prev,
-        [id]: { success: res.data.success, message: res.data.message }
+        [id]: { success: data.success, message: data.message }
       }));
-      if (res.data.success) {
-        toast.success(res.data.message);
+      if (data.success) {
+        toast.success(data.message);
       } else {
-        toast.error(res.data.message);
+        toast.error(data.message);
       }
     } catch (error: any) {
-      const msg = error.response?.data?.error || 'Test failed';
+      const msg = error.response?.data?.error || error.message || 'Test failed';
       setTestResults(prev => ({
         ...prev,
         [id]: { success: false, message: msg }
@@ -215,7 +215,7 @@ const Settings = () => {
   const handleDeleteKey = async (id: number) => {
     if (!confirm('Are you sure you want to delete this key?')) return;
     try {
-      await api.delete(`/ai/keys/${id}/`);
+      await aiKeysAPI.delete(id);
       toast.success('Key deleted');
       fetchAiKeys();
     } catch (error) {
@@ -313,20 +313,7 @@ const Settings = () => {
 
     try {
       setIsUploadingKeys(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://backend.ekasyarifmaulana.biz.id/api'}/ai/upload-keys/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Gagal mengunggah kunci');
-      }
+      const data = await aiKeysAPI.upload(formData);
 
       toast.success(data.message || 'Kunci API berhasil diimpor');
       setKeyFile(null);
@@ -350,12 +337,12 @@ const Settings = () => {
     
     try {
       setIsAddingKey(true);
-      await api.post('/ai/keys/add/', newKey);
+      await aiKeysAPI.add(newKey);
       toast.success('Kunci API berhasil ditambahkan');
       setNewKey({ ...newKey, key: '' });
       fetchAiKeys();
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Gagal menambahkan kunci');
+      toast.error(error.response?.data?.error || error.message || 'Gagal menambahkan kunci');
     } finally {
       setIsAddingKey(false);
     }
