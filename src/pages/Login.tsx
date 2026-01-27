@@ -144,7 +144,7 @@ const Login = () => {
             <div className="space-y-2">
               <Label htmlFor="captcha" className="text-slate-300">Kode Keamanan</Label>
               <div className="flex gap-2">
-                <div className="select-none rounded-md border border-slate-700 bg-slate-800 px-3 py-2 font-mono text-lg font-bold tracking-widest text-indigo-400 w-32 text-center">
+                <div className="select-none rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 font-mono text-lg font-bold tracking-widest text-emerald-400 w-32 text-center">
                   {generatedCaptcha}
                 </div>
                 <Button 
