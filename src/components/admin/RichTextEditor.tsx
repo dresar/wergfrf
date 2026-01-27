@@ -87,6 +87,7 @@ export const RichTextEditor = ({ content, onChange, placeholder, enableAI = true
   const [aiModalOpen, setAiModalOpen] = useState(false);
   
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false, // Disable default codeBlock to use lowlight
@@ -104,17 +105,13 @@ export const RichTextEditor = ({ content, onChange, placeholder, enableAI = true
         },
       }),
       TiptapImage.configure({
-        inline: true,
-        allowBase64: true,
         HTMLAttributes: {
-          class: 'rounded-lg border border-border max-w-full h-auto my-4',
+          class: 'rounded-lg border shadow-sm max-w-full h-auto',
         },
       }),
       Youtube.configure({
         controls: false,
-        HTMLAttributes: {
-          class: 'rounded-lg overflow-hidden border border-border w-full aspect-video my-4',
-        },
+        nocookie: true,
       }),
       Underline,
       TextAlign.configure({
@@ -124,29 +121,22 @@ export const RichTextEditor = ({ content, onChange, placeholder, enableAI = true
       Color,
       Table.configure({
         resizable: true,
-        HTMLAttributes: {
-          class: 'border-collapse table-auto w-full border border-border my-4',
-        },
       }),
       TableRow,
       TableHeader,
       TableCell,
       Placeholder.configure({
-        placeholder: placeholder || 'Mulai menulis...',
+        placeholder: placeholder || 'Start writing...',
       }),
       Subscript,
       Superscript,
-      Highlight.configure({ multipart: true }),
+      Highlight,
     ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-none min-h-[300px] px-4 py-3',
-      },
-    },
+    editable: true,
   });
 
   // Update editor content when prop changes
