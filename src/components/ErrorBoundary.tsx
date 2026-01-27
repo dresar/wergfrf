@@ -30,12 +30,18 @@ export class ErrorBoundary extends Component<Props, State> {
     // Auto-reload on chunk load error
     if (error.message.includes('Failed to fetch dynamically imported module') || 
         error.message.includes('Importing a module script failed')) {
-      const storageKey = 'chunk_load_error_reload';
-      const lastReload = sessionStorage.getItem(storageKey);
+      const storageKey = 'chunk_reload_time';
+      const lastReload = parseInt(sessionStorage.getItem(storageKey) || '0');
+      const now = Date.now();
       
-      if (!lastReload) {
-        sessionStorage.setItem(storageKey, 'true');
-        window.location.reload();
+      // If less than 10 seconds since last reload, stop loop and show UI
+      if (now - lastReload > 10000) {
+        sessionStorage.setItem(storageKey, String(now));
+        
+        // Force reload with cache busting query param
+        const url = new URL(window.location.href);
+        url.searchParams.set('t', String(now));
+        window.location.href = url.toString();
         return;
       }
     }

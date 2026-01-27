@@ -55,13 +55,8 @@ const AdminLayout = () => {
 };
 
 const App = () => {
-  // Clear chunk load error flag on successful app load
-  useEffect(() => {
-    sessionStorage.removeItem('chunk_load_error_reload');
-  }, []);
-
   return (
-  <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <ThemeApplicator />
       <TooltipProvider>
