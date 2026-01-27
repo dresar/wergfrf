@@ -10,6 +10,7 @@ import {
   X,
   Image as ImageIcon,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEducation } from '@/hooks/useEducation';

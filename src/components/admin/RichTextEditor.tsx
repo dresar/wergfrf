@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Link } from '@tiptap/extension-link';
-import { Image } from '@tiptap/extension-image';
+import { Image as TiptapImage } from '@tiptap/extension-image';
 import { Youtube } from '@tiptap/extension-youtube';
 import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
@@ -103,7 +103,7 @@ export const RichTextEditor = ({ content, onChange, placeholder, enableAI = true
           class: 'text-primary underline cursor-pointer',
         },
       }),
-      Image.configure({
+      TiptapImage.configure({
         inline: true,
         allowBase64: true,
         HTMLAttributes: {
