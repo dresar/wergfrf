@@ -23,14 +23,22 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            // Split React and core libs into a separate vendor chunk
+            if (id.includes('/react') || id.includes('/react-dom') || id.includes('/react-router-dom')) {
               return 'vendor';
             }
-            if (id.includes('lucide-react')) {
+            // Keep UI libraries together
+            if (id.includes('/@radix-ui') || id.includes('/class-variance-authority') || id.includes('/clsx') || id.includes('/tailwind-merge')) {
+              return 'ui-libs';
+            }
+            // Split heavy icons
+            if (id.includes('/lucide-react')) {
               return 'icons';
             }
-            // Other dependencies can be bundled together or left to default splitting
-            return 'deps'; 
+            // Split heavy animation lib
+            if (id.includes('/framer-motion')) {
+              return 'framer';
+            }
           }
         },
       },
