@@ -1,57 +1,44 @@
-export default async function handler(req, res) {
-  const { path, purge } = req.query;
-  const API_BASE_URL = process.env.API_BASE_URL || 'https://porto.apprentice.cyou/api';
+export default async function handler(request, response) {
+  const { endpoint } = request.query;
 
-  if (!path) {
-    return res.status(400).json({ error: 'Path parameter is required' });
+  if (!endpoint) {
+    return response.status(400).json({ error: 'Endpoint parameter is required' });
   }
 
-  // Construct target URL
-  // path should be something like "/projects/"
-  // Ensure we don't have double slashes if path starts with / and base ends with /
-  const baseUrl = API_BASE_URL.replace(/\/$/, '');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const targetUrl = `${baseUrl}${cleanPath}`;
+  // Ambil URL Backend dari Environment Variable
+  const API_BASE_URL = process.env.VITE_API_URL || 'https://porto.apprentice.cyou/api';
+
+  // Pastikan endpoint diawali dengan slash jika API_BASE_URL tidak diakhiri slash, atau sebaliknya.
+  // Asumsi: API_BASE_URL tidak berakhiran slash, endpoint berawalan slash.
+  // Clean up potential double slashes just in case.
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const targetUrl = `${API_BASE_URL}${cleanEndpoint}`;
 
   try {
-    const headers = { ...req.headers };
-    // Remove headers that might cause issues
-    delete headers.host;
-    delete headers['content-length'];
-    // Forward the original forwarded-for if needed, or Vercel handles it.
+    const backendResponse = await fetch(targetUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Tidak mengirim token di sini karena ini untuk public/static access
+      },
+    });
 
-    const fetchOptions = {
-      method: req.method,
-      headers: headers,
-    };
-
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
-      fetchOptions.body = JSON.stringify(req.body);
+    if (!backendResponse.ok) {
+      return response.status(backendResponse.status).json({ error: `Backend Error: ${backendResponse.statusText}` });
     }
 
-    const response = await fetch(targetUrl, fetchOptions);
+    const data = await backendResponse.json();
+
+    // Set Header Caching Agresif (1 Jam di CDN Vercel)
+    response.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
     
-    // Handle non-JSON responses (e.g. 404 HTML pages)
-    const contentType = response.headers.get('content-type');
-    let data;
-    if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-    } else {
-        data = { error: await response.text(), status: response.status };
-    }
-
-    // Set Cache-Control
-    if (purge === 'true') {
-      // If purge is requested, fetch fresh data (already done) and don't cache this response
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    } else {
-      // Cache for 1 hour, allow stale while revalidating
-      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-    }
-
-    res.status(response.status).json(data);
+    // Set CORS agar bisa diakses dari frontend
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    
+    return response.status(200).json(data);
   } catch (error) {
-    console.error('Proxy error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Proxy Error:', error);
+    return response.status(500).json({ error: 'Internal Server Error' });
   }
 }
