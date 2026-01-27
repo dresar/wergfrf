@@ -88,7 +88,7 @@ export const EducationSection = () => {
                         onClick={() => openEducationGalleryModal(edu)}
                         className="text-[10px] px-2.5 py-1.5 h-auto"
                       >
-                        <Image className="w-3 h-3 mr-1.5" />
+                        <ImageIcon className="w-3 h-3 mr-1.5" />
                         {t('education.gallery')}
                       </ShinyButton>
                     )}
