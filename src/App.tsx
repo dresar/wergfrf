@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -54,7 +54,13 @@ const AdminLayout = () => {
   );
 };
 
-const App = () => (
+const App = () => {
+  // Clear chunk load error flag on successful app load
+  useEffect(() => {
+    sessionStorage.removeItem('chunk_load_error_reload');
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <ThemeApplicator />
@@ -105,5 +111,6 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
 );
+};
 
 export default App;
