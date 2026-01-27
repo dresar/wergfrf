@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BACKEND_BASE_URL = "https://porto.apprentice.cyou";
 
 export function normalizeMediaUrl(raw?: string | null) {
   if (!raw) return "";
