@@ -68,7 +68,7 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      await login({ email, password, captcha, captchaHash });
+      await login({ identifier, password, captcha, captchaHash });
       // Reset on success
       setAttempts(0);
       localStorage.setItem('login_attempts', '0');
