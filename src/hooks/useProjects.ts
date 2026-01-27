@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { projectsAPI } from '@/services/api';
+import { projectsAPI, apiCall } from '@/services/api';
 import { toast } from 'sonner';
 import { useMemo } from 'react';
 
@@ -14,7 +14,8 @@ export function useProjects() {
 
   const addProjectMutation = useMutation({
     mutationFn: projectsAPI.create,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/projects/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
@@ -25,7 +26,8 @@ export function useProjects() {
 
   const updateProjectMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => projectsAPI.update(id, data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/projects/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
@@ -36,7 +38,8 @@ export function useProjects() {
 
   const deleteProjectMutation = useMutation({
     mutationFn: projectsAPI.delete,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/projects/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
@@ -47,7 +50,8 @@ export function useProjects() {
 
   const reorderProjectMutation = useMutation({
     mutationFn: projectsAPI.reorder,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/projects/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
     onError: (error) => {
@@ -59,7 +63,8 @@ export function useProjects() {
   const deleteImageMutation = useMutation({
     mutationFn: ({ projectId, imageId }: { projectId: number; imageId: number }) => 
       projectsAPI.deleteImage(projectId, imageId),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/projects/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Image deleted successfully');
     },

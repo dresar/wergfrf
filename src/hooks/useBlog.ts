@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { blogPostsAPI, blogCategoriesAPI } from '@/services/api';
+import { blogPostsAPI, blogCategoriesAPI, apiCall } from '@/services/api';
 import { toast } from 'sonner';
 import { useMemo } from 'react';
 
@@ -14,7 +14,8 @@ export function useBlogPosts() {
 
   const addPostMutation = useMutation({
     mutationFn: blogPostsAPI.create,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-posts/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       toast.success('Blog post created successfully');
     },
@@ -26,7 +27,8 @@ export function useBlogPosts() {
 
   const updatePostMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => blogPostsAPI.update(id, data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-posts/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       toast.success('Blog post updated successfully');
     },
@@ -38,7 +40,8 @@ export function useBlogPosts() {
 
   const deletePostMutation = useMutation({
     mutationFn: blogPostsAPI.delete,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-posts/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       toast.success('Blog post deleted successfully');
     },
@@ -83,7 +86,8 @@ export function useBlogCategories() {
 
   const addCategoryMutation = useMutation({
     mutationFn: blogCategoriesAPI.create,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-categories/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] });
       toast.success('Category created successfully');
     },
@@ -95,7 +99,8 @@ export function useBlogCategories() {
 
   const updateCategoryMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => blogCategoriesAPI.update(id, data),
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-categories/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] });
       toast.success('Category updated successfully');
     },
@@ -107,7 +112,8 @@ export function useBlogCategories() {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: blogCategoriesAPI.delete,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await apiCall('/blog-categories/', { purge: true });
       queryClient.invalidateQueries({ queryKey: ['blog-categories'] });
       toast.success('Category deleted successfully');
     },

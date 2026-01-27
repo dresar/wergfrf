@@ -2,7 +2,7 @@
 const API_BASE_URL = "https://porto.apprentice.cyou/api";
 
 // Helper function untuk API calls
-export async function apiCall(endpoint: string, options: RequestInit = {}) {
+export async function apiCall(endpoint: string, options: RequestInit & { purge?: boolean } = {}) {
   try {
     const token = localStorage.getItem('token');
     const isFormData = options.body instanceof FormData;
@@ -15,7 +15,21 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       headers['Authorization'] = `Token ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const method = options.method || 'GET';
+    let url;
+
+    if (method === 'GET') {
+      const params = new URLSearchParams();
+      params.append('path', endpoint);
+      if (options.purge) {
+        params.append('purge', 'true');
+      }
+      url = `/api/proxy?${params.toString()}`;
+    } else {
+      url = `${API_BASE_URL}${endpoint}`;
+    }
+
+    const response = await fetch(url, {
       ...options,
       headers,
     });
