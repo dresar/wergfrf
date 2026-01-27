@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { authService } from "@/services/authService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,25 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaHash, setCaptchaHash] = useState("");
+  const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   const { login } = useAuth();
+
+  const fetchCaptcha = async () => {
+    try {
+      const res = await authService.getCaptcha();
+      setGeneratedCaptcha(res.captcha);
+      setCaptchaHash(res.hash);
+    } catch (err) {
+      console.error("Failed to fetch captcha", err);
+      toast.error("Gagal memuat captcha");
+    }
+  };
+
+  useEffect(() => {
+    fetchCaptcha();
+  }, []);
 
   // Reset attempts on mount (or use localStorage for persistence)
   useEffect(() => {
@@ -49,7 +68,7 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      await login({ email, password });
+      await login({ email, password, captcha, captchaHash });
       // Reset on success
       setAttempts(0);
       localStorage.setItem('login_attempts', '0');
@@ -132,7 +151,7 @@ const Login = () => {
                   type="button" 
                   variant="outline" 
                   size="icon" 
-                  onClick={generateCaptcha}
+                  onClick={fetchCaptcha}
                   className="border-slate-700 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
                   title="Ganti Kode"
                 >

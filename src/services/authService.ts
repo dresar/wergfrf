@@ -3,6 +3,8 @@ import { apiCall } from "./api";
 type LoginCredentials = {
   email: string;
   password: string;
+  captcha?: string;
+  captchaHash?: string;
 };
 
 type RegisterPayload = {
@@ -26,5 +28,8 @@ export const authService = {
   },
   getMe: async () => {
     return apiCall("/auth/me/");
+  },
+  getCaptcha: async () => {
+    return apiCall("/auth/captcha/");
   },
 };
