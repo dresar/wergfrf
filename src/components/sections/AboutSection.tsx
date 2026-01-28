@@ -90,9 +90,9 @@ export const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="py-10 md:py-16 relative" ref={ref}>
+    <section id="about" className="py-6 md:py-8 relative" ref={ref}>
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Image Side */}
           <motion.div
             className="relative"

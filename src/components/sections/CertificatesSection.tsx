@@ -14,7 +14,7 @@ export const CertificatesSection = () => {
   const { certificates = [], isLoading, refetch } = useCertificates();
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 8;
 
   const { data: categories = [] } = useQuery({
     queryKey: ['certificateCategories'],
@@ -62,18 +62,18 @@ export const CertificatesSection = () => {
 
   if (isLoading) {
     return (
-      <section id="certificates" className="py-20 md:py-32 relative flex justify-center">
+      <section id="certificates" className="py-6 md:py-12 relative flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </section>
     );
   }
 
   return (
-    <section id="certificates" className="py-12 md:py-16 relative">
+    <section id="certificates" className="py-6 md:py-8 relative bg-card/50 dark:bg-transparent">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -133,7 +133,7 @@ export const CertificatesSection = () => {
                 className="group relative"
                 onClick={() => openCertificateModal(cert)}
               >
-                <div className="glass-strong rounded-xl overflow-hidden hover:glow-primary transition-all duration-300 cursor-pointer h-full flex flex-col">
+                <div className="glass-strong rounded-xl overflow-hidden hover:glow-primary transition-all duration-300 cursor-pointer h-full flex flex-col dark:bg-card/50 bg-white shadow-sm hover:shadow-md">
                   {/* Image/Thumbnail */}
                   <div className="relative h-48 bg-muted overflow-hidden">
                     {cert.image ? (

@@ -94,10 +94,10 @@ export const HeroSection = () => {
   const projectCount = manualProjectCount > 0 ? manualProjectCount : projects.length;
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+    <section id="home" className="relative min-h-[80vh] flex items-center overflow-hidden pt-16">
       <ParticlesBackground />
 
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* Left Side - Text Content */}
           <motion.div

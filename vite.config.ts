@@ -6,15 +6,17 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   server: {
     host: true, // Listen on all addresses
-    port: 8080,
+    port: 8084,
     proxy: {
       "/api": {
-        // Gunakan localhost untuk pengembangan lokal
-        // target: "http://localhost:8000", 
-        target: "https://porto.apprentice.cyou", // Gunakan ini jika ingin connect ke Production
+        target: "https://porto.apprentice.cyou", 
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'), 
+      },
+      "/media": {
+        target: "https://porto.apprentice.cyou",
+        changeOrigin: true,
+        secure: false,
       },
     },
     hmr: {
@@ -22,11 +24,10 @@ export default defineConfig(({ mode }) => ({
     },
   },
   preview: {
-    port: 8080,
+    port: 8084,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
-        // target: "https://porto.apprentice.cyou",
+        target: "https://porto.apprentice.cyou",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),

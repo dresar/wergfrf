@@ -12,18 +12,18 @@ export const EducationSection = () => {
 
   if (isLoading) {
     return (
-      <section id="education" className="py-20 md:py-32 relative flex justify-center">
+      <section id="education" className="py-6 md:py-12 relative flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </section>
     );
   }
 
   return (
-    <section id="education" className="py-12 md:py-16 relative">
+    <section id="education" className="py-6 md:py-8 relative">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -52,7 +52,7 @@ export const EducationSection = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="glass-strong rounded-2xl p-5 hover:glow-primary transition-all duration-300 h-full flex flex-col border border-border/50">
+                <div className="glass-strong rounded-2xl p-5 hover:glow-primary transition-all duration-300 h-full flex flex-col border border-border/50 dark:bg-card/50 bg-white shadow-sm hover:shadow-md">
                   {/* Header */}
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2.5 rounded-xl bg-primary/10 shrink-0">

@@ -17,7 +17,7 @@ const BlogList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 12;
+  const postsPerPage = 8;
 
   const publishedPosts = posts.filter((post: any) => post.is_published);
   

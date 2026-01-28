@@ -13,14 +13,14 @@ export const BlogSection = () => {
   const { posts, isLoading } = useBlogPosts();
   const navigate = useNavigate();
 
-  // Filter only published posts and take first 16 (4 rows x 4 columns)
+  // Filter only published posts and take first 8 (2 rows x 4 columns)
   const latestPosts = posts
     .filter((post: any) => post.is_published)
-    .slice(0, 16);
+    .slice(0, 8);
 
   if (isLoading) {
     return (
-        <section id="blog" className="py-20 relative overflow-hidden">
+        <section id="blog" className="py-6 md:py-12 relative overflow-hidden">
              <div className="container mx-auto px-4 text-center">
                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
              </div>
@@ -31,14 +31,14 @@ export const BlogSection = () => {
   if (latestPosts.length === 0) return null;
 
   return (
-    <section id="blog" className="py-12 md:py-16 relative overflow-hidden bg-secondary/5">
+    <section id="blog" className="py-6 md:py-8 relative overflow-hidden bg-secondary/5">
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-6"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500">
             {t('blog.latest_title')}

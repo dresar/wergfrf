@@ -52,18 +52,18 @@ export const SkillsSection = () => {
 
   if (isSkillsLoading || isCategoriesLoading) {
     return (
-      <section id="skills" className="py-20 md:py-32 relative bg-card/30 flex justify-center">
+      <section id="skills" className="py-6 md:py-12 relative bg-card/30 flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </section>
     );
   }
 
   return (
-    <section id="skills" className="py-12 md:py-16 relative bg-card/30">
+    <section id="skills" className="py-6 md:py-8 relative bg-card/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -80,7 +80,7 @@ export const SkillsSection = () => {
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
           {categories.map((category) => {
             const Icon = getIconForCategory(category.slug);
             return (

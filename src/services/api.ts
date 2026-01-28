@@ -153,7 +153,7 @@ export const blogCategoriesAPI = {
 // Blog Posts API
 export const blogPostsAPI = {
   getAll: async () => apiCall('/blog-posts/'),
-  getOne: async (slug: string) => apiCall(`/blog-posts/${slug}/`),
+  getOne: async (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
 };
 
 // Home Content API

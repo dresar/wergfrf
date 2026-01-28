@@ -1,13 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Github, ArrowRight, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { ExternalLink, Github, ArrowRight, Loader2, AlertCircle, Sparkles, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProjects } from '@/hooks/useProjects';
 import { useProjectCategories } from '@/hooks/useProjectCategories';
-import { useModalStore } from '@/store/modalStore';
-import { AISummaryModal } from '@/components/ui/AISummaryModal';
 import { Button } from '@/components/ui/button';
+import { AISummaryModal } from '@/components/ui/AISummaryModal';
 
 export const ProjectsSection = () => {
   const { t } = useTranslation();
@@ -15,11 +14,9 @@ export const ProjectsSection = () => {
   const { categories } = useProjectCategories();
   const [activeFilter, setActiveFilter] = useState<number | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 16;
-  const { openProjectModal } = useModalStore();
+  const [summaryProject, setSummaryProject] = useState<any>(null);
+  const itemsPerPage = 8; // Show 8 projects per page with pagination
   const { projects = [], isLoading, isError } = useProjects();
-  const [aiProject, setAiProject] = useState<any>(null);
-  const [summaryIndices, setSummaryIndices] = useState<Record<number, number>>({});
 
   const filters = useMemo(() => [
     { id: 'all', label: t('projects.all_projects') },
@@ -59,7 +56,7 @@ export const ProjectsSection = () => {
 
   if (isLoading) {
     return (
-      <section id="projects" className="py-20 md:py-32 relative flex justify-center">
+      <section id="projects" className="py-6 md:py-12 relative flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </section>
     );
@@ -67,7 +64,7 @@ export const ProjectsSection = () => {
 
   if (isError) {
     return (
-      <section id="projects" className="py-20 md:py-32 relative flex flex-col justify-center items-center text-center px-4">
+      <section id="projects" className="py-6 md:py-12 relative flex flex-col justify-center items-center text-center px-4">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
         <h3 className="text-xl font-semibold mb-2">Gagal Memuat Proyek</h3>
         <p className="text-muted-foreground mb-6">Terjadi kesalahan saat mengambil data proyek.</p>
@@ -79,7 +76,7 @@ export const ProjectsSection = () => {
   }
 
   return (
-    <section id="projects" className="py-12 md:py-16 relative">
+    <section id="projects" className="py-6 md:py-8 relative bg-card/50 dark:bg-transparent">
       {/* Background Decoration */}
       <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[150px]" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-[120px]" />
@@ -87,7 +84,7 @@ export const ProjectsSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -104,7 +101,7 @@ export const ProjectsSection = () => {
         </motion.div>
 
         {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           {filters.map((filter) => (
             <motion.button
               key={filter.id}
@@ -133,35 +130,45 @@ export const ProjectsSection = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
-                className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all"
+                className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all dark:bg-card/50 dark:border-border/50 bg-white shadow-sm hover:shadow-md"
               >
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden">
                   <img
-                    src={project.image}
+                    src={project.cover_image || project.thumbnail || project.image}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                  
+                  {/* AI Summary Button - Top Right */}
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute top-2 right-2 z-20 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-white transition-colors shadow-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSummaryProject(project);
+                    }}
+                    title="AI Summary"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </Button>
+
+                  {/* Overlay with Detail Button */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 z-10 cursor-pointer" onClick={() => navigate(`/project/${project.id}`)}>
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="rounded-full"
-                      onClick={() => openProjectModal(project)}
+                      className="rounded-full hover:bg-primary hover:text-white transition-colors h-10 w-10"
+                      onClick={(e) => {
+                         e.stopPropagation();
+                         navigate(`/project/${project.id}`);
+                      }}
+                      title="View Details"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <Eye className="h-5 w-5" />
                     </Button>
-                    {project.github_url && (
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="rounded-full"
-                        onClick={() => window.open(project.github_url, '_blank')}
-                      >
-                        <Github className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
                 </div>
 
@@ -188,26 +195,56 @@ export const ProjectsSection = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <button
-                      onClick={() => setAiProject(project)}
-                      className="text-xs font-medium text-primary flex items-center gap-1 hover:underline"
+                  <div className="flex items-center justify-between pt-4 border-t mt-4 gap-2">
+                    <div className="flex gap-2">
+                      {/* GitHub Button */}
+                      {(project.repoUrl || project.github_url) && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="rounded-full hover:bg-black hover:text-white transition-colors h-9 w-9"
+                          onClick={() => window.open(project.repoUrl || project.github_url, '_blank')}
+                          title="GitHub Repo"
+                        >
+                          <Github className="h-4 w-4" />
+                        </Button>
+                      )}
+
+                      {/* Demo Button */}
+                      {(project.demoUrl || project.demo_url) && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="rounded-full hover:bg-blue-500 hover:text-white transition-colors h-9 w-9"
+                          onClick={() => window.open(project.demoUrl || project.demo_url, '_blank')}
+                          title="Live Demo"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <Button
+                      onClick={() => navigate(`/project/${project.id}`)}
+                      variant="default"
+                      size="sm"
+                      className="gap-2 px-6 flex-1 ml-auto"
                     >
-                      <Sparkles className="h-3 w-3" />
-                      AI Summary
-                    </button>
-                    <button
-                      onClick={() => openProjectModal(project)}
-                      className="text-xs font-medium text-primary flex items-center gap-1 hover:underline"
-                    >
-                      {t('common.read_more')} <ArrowRight className="h-3 w-3" />
-                    </button>
+                      Detail <ArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
+
+        {/* AI Summary Modal */}
+        <AISummaryModal
+          isOpen={!!summaryProject}
+          onClose={() => setSummaryProject(null)}
+          project={summaryProject}
+        />
 
         {/* Empty State */}
         {displayedProjects.length === 0 && (
@@ -239,14 +276,6 @@ export const ProjectsSection = () => {
           </div>
         )}
       </div>
-
-      {/* AI Summary Modal */}
-      <AISummaryModal
-        isOpen={!!aiProject}
-        onClose={() => setAiProject(null)}
-        projectTitle={aiProject?.title || ''}
-        projectDescription={aiProject?.description || ''}
-      />
     </section>
   );
 };

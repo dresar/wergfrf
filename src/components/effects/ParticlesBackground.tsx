@@ -36,7 +36,7 @@ export const ParticlesBackground = () => {
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute rounded-full bg-primary/20"
+          className="absolute rounded-full bg-primary/60 dark:bg-primary/40"
           style={{
             left: `${particle.x}%`,
             top: `${particle.y}%`,
@@ -46,7 +46,7 @@ export const ParticlesBackground = () => {
           animate={{
             y: [0, -100, 0],
             x: [0, Math.random() * 50 - 25, 0],
-            opacity: [0.2, 0.8, 0.2],
+            opacity: [0.3, 1, 0.3],
           }}
           transition={{
             duration: particle.duration,
@@ -57,8 +57,8 @@ export const ParticlesBackground = () => {
         />
       ))}
       {/* Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 dark:bg-primary/10 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 dark:bg-primary/5 bg-primary/15 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
     </div>
   );
 };

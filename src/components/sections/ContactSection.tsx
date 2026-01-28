@@ -87,7 +87,7 @@ export const ContactSection = () => {
   const mapUrl = getMapSrc((profile as any)?.map_embed_url);
 
   return (
-    <section id="contact" className="py-12 md:py-16 relative bg-card/30 overflow-hidden">
+    <section id="contact" className="py-6 md:py-8 relative bg-card/30 overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[150px]" />
@@ -97,7 +97,7 @@ export const ContactSection = () => {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
