@@ -9,10 +9,12 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       "/api": {
-        target: "https://porto.apprentice.cyou",
+        // Gunakan localhost untuk pengembangan lokal
+        // target: "http://localhost:8000", 
+        target: "https://porto.apprentice.cyou", // Gunakan ini jika ingin connect ke Production
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'), // Explicit rewrite
+        rewrite: (path) => path.replace(/^\/api/, '/api'), 
       },
     },
     hmr: {
@@ -23,7 +25,8 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       "/api": {
-        target: "https://porto.apprentice.cyou",
+        target: "http://localhost:8000",
+        // target: "https://porto.apprentice.cyou",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),

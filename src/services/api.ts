@@ -23,13 +23,27 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       headers,
     });
 
+    // Check Content-Type header
+    const contentType = response.headers.get("content-type");
+    const isJson = contentType && contentType.includes("application/json");
+
     if (!response.ok) {
       let errorMessage = `HTTP error! status: ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorData.message || errorMessage;
-      } catch (e) {
-        // ignore json parse error
+      
+      if (isJson) {
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          // ignore json parse error
+        }
+      } else {
+        // Jika error tapi bukan JSON (misal HTML 404/500), ambil text sebagian
+        try {
+          const text = await response.text();
+          console.error(`API Error Response (${endpoint}):`, text.substring(0, 200));
+          errorMessage += " (Non-JSON response)";
+        } catch (e) {}
       }
       
       const error = new Error(errorMessage) as any;
@@ -39,6 +53,13 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
     if (response.status === 204) {
       return null;
+    }
+
+    if (!isJson) {
+      // Jika status 200 OK tapi bukan JSON (misal HTML index.html karena proxy fail)
+      const text = await response.text();
+      console.error(`API Unexpected HTML Response (${endpoint}):`, text.substring(0, 200));
+      throw new Error(`API returned Non-JSON response (HTML). Check proxy/backend configuration.`);
     }
 
     const data = await response.json();
