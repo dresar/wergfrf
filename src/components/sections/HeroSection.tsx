@@ -5,7 +5,6 @@ import { ParticlesBackground } from '@/components/effects/ParticlesBackground';
 import { TypewriterText } from '@/components/effects/TypewriterText';
 import { ShinyButton, BorderBeamButton } from '@/components/effects/Buttons';
 import { useProfile } from '@/hooks/useProfile';
-import { useAdminStore } from '@/store/adminStore';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
 import { Loader2 } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
@@ -28,7 +27,6 @@ const socialIcons: Record<string, any> = {
 export const HeroSection = () => {
   const { t, i18n } = useTranslation();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { homeContent } = useAdminStore();
   const { socialLinks = [], isLoading: linksLoading } = useSocialLinks();
   const { projects = [] } = useProjects();
   const { experiences = [] } = useExperience();
@@ -50,15 +48,11 @@ export const HeroSection = () => {
   const currentLang = i18n.language === 'en' ? 'en' : 'id';
   
   // Use HomeContent if available, otherwise fallback to Profile or defaults
-  const greeting = homeContent 
-    ? (currentLang === 'en' ? homeContent.greeting_en : homeContent.greeting_id) || homeContent.greeting_id
-    : profile?.greeting;
+  const greeting = profile?.greeting;
 
   // Parse roles
   let roles: string[] = ['Developer', 'Designer'];
-  const rolesSource = homeContent 
-    ? (currentLang === 'en' ? homeContent.roles_en : homeContent.roles_id) || homeContent.roles_id
-    : profile?.role;
+  const rolesSource = profile?.role;
 
   try {
     if (rolesSource) {
