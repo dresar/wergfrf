@@ -1,6 +1,6 @@
 // API Service untuk koneksi ke backend
 // Implementasi Real-time Data Fetching (In-Memory Only)
-const DIRECT_URL = "/api";
+const DIRECT_URL = "https://porto.apprentice.cyou/api";
 
 // Helper function untuk API calls langsung tanpa persistent storage
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
