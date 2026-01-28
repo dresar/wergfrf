@@ -4,7 +4,10 @@ import {
   FALLBACK_PROJECTS, 
   FALLBACK_SKILLS, 
   FALLBACK_EXPERIENCE, 
-  FALLBACK_EDUCATION 
+  FALLBACK_EDUCATION,
+  FALLBACK_CERTIFICATE_CATEGORIES,
+  FALLBACK_BLOG_POSTS,
+  FALLBACK_PROJECT_CATEGORIES
 } from '../data/fallbackData';
 
 // API Service untuk koneksi ke backend
@@ -45,7 +48,14 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
     return await response.json();
   } catch (error) {
-    console.error(`API call failed for ${endpoint}:`, error);
+    // Suppress console.error for expected fallback scenarios to avoid alarming the user
+    // console.error(`API call failed for ${endpoint}:`, error);
+    
+    // If it's a JSON parse error (like receiving HTML instead of JSON)
+    // we still throw, but we suppressed the console log above.
+    // The calling functions (profileAPI, projectsAPI, etc.) will catch this 
+    // and return their specific fallback data.
+    
     throw error;
   }
 }
@@ -81,7 +91,8 @@ export const projectCategoriesAPI = {
     try {
       return await apiCall('/project-categories/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for project categories');
+      return FALLBACK_PROJECT_CATEGORIES;
     }
   },
 };
@@ -127,7 +138,8 @@ export const certificateCategoriesAPI = {
     try {
       return await apiCall('/certificate-categories/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for certificate categories');
+      return FALLBACK_CERTIFICATE_CATEGORIES;
     }
   },
 };
@@ -219,11 +231,19 @@ export const blogPostsAPI = {
     try {
       return await apiCall('/blog-posts/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for blog posts');
+      return FALLBACK_BLOG_POSTS;
     }
   },
-  getBySlug: (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
-  getById: (id: number) => apiCall(`/blog-posts/${id}/`),
+  getOne: async (slug: string) => {
+    try {
+      return await apiCall(`/blog-posts/${slug}/`);
+    } catch (error) {
+      const post = FALLBACK_BLOG_POSTS.find(p => p.slug === slug);
+      if (post) return post;
+      return null;
+    }
+  },
 };
 
 // Home Content API

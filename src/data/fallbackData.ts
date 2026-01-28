@@ -1,3 +1,43 @@
+export const FALLBACK_PROJECT_CATEGORIES = [
+  {"id":8,"name":"Web Development","slug":"web-development"},
+  {"id":9,"name":"Mobile Apps","slug":"mobile-apps"},
+  {"id":10,"name":"UI/UX Design","slug":"uiux-design"}
+];
+
+export const FALLBACK_CERTIFICATE_CATEGORIES = [
+  {"id":1,"name":"biasa","slug":"biasa"},
+  {"id":2,"name":"Backend Development","slug":"backend-development"},
+  {"id":3,"name":"Frontend Development","slug":"frontend-development"},
+  {"id":4,"name":"Cloud Computing","slug":"cloud-computing"},
+  {"id":5,"name":"DevOps","slug":"devops"},
+  {"id":6,"name":"Data Science","slug":"data-science"}
+];
+
+export const FALLBACK_BLOG_POSTS = [
+  {
+    "id": 33,
+    "category_details": {
+      "id": 9,
+      "name": "Life Hacks",
+      "slug": "life-hacks",
+      "description": ""
+    },
+    "title": "The Future of Life Hacks: Insight 1",
+    "slug": "the-future-of-life-hacks-insight-1",
+    "excerpt": "Discover the latest trends and techniques in Life Hacks. This article covers everything you need to know about Insight 1.",
+    "content": "<h2>Introduction</h2><p>Welcome to this comprehensive guide about <strong>The Future of Life Hacks: Insight 1</strong>. In this article, we will explore the key concepts and practical applications of this topic in the realm of Life Hacks.</p><p><img src=\"https://picsum.photos/seed/The Future of Life Hacks: Insight 1-1/800/600\" alt=\"Illustration 1\" /></p><h3>Why This Matters</h3><p>Understanding these principles is crucial for modern developers. Whether you are a beginner or an expert, mastering these skills will significantly enhance your productivity.</p><h3>Key Takeaways</h3><ul><li>Fundamental concepts explained simply.</li><li>Real-world examples and use cases.</li><li>Best practices for implementation.</li></ul><p><img src=\"https://picsum.photos/seed/The Future of Life Hacks: Insight 1-2/800/600\" alt=\"Illustration 2\" /></p><h3>Deep Dive</h3><p>Let's look closer at the implementation details. The code structure should be clean and maintainable. Always consider scalability when designing your solutions.</p><iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/kUMe1FH4CHE\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe><h3>Conclusion</h3><p>We hope this article has provided valuable insights.</p>",
+    "thumbnail": "https://picsum.photos/seed/life-hacks-1/800/600",
+    "cover_image": null,
+    "created_at": "2026-01-25T12:00:00Z",
+    "updated_at": "2026-01-25T12:00:00Z",
+    "author": {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com"
+    }
+  }
+];
+
 export const FALLBACK_PROJECTS = [
   {
     "id": 44,
