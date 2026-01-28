@@ -2,9 +2,7 @@ import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Loader2 } from "lucide-react";
@@ -18,35 +16,40 @@ const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Configure Query Client with caching strategies
+// Configure Query Client for Real-time In-Memory Caching
+// Tidak menggunakan persistensi localStorage, data hanya hidup di memory (session)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 30, // 30 minutes
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-      refetchOnWindowFocus: false,
-      refetchInterval: 1000 * 60 * 30, // Auto-refetch every 30 minutes
+      // Data dianggap stale (basi) hampir seketika untuk memastikan real-time
+      // namun diberi buffer kecil (5 detik) untuk mencegah duplicate request berlebihan
+      // saat komponen re-render cepat.
+      staleTime: 5000, 
+      
+      // Data disimpan di memory (cache) selama 10 menit jika tidak digunakan
+      gcTime: 1000 * 60 * 10, 
+      
+      // Refetch saat window fokus kembali (user balik ke tab)
+      refetchOnWindowFocus: true,
+      
+      // Retry 1 kali jika gagal, lalu error
+      retry: 1,
     },
   },
 });
 
-// Create Persister for Local Storage
-const persister = createSyncStoragePersister({
-  storage: window.localStorage,
-});
-
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-background">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <div className="flex flex-col items-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <p className="text-muted-foreground text-sm">Memuat data real-time...</p>
+    </div>
   </div>
 );
 
 const App = () => {
   return (
-    <PersistQueryClientProvider 
-      client={queryClient} 
-      persistOptions={{ persister }}
-    >
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <ThemeApplicator />
         <TooltipProvider>
@@ -70,7 +73,7 @@ const App = () => {
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   );
 };
 

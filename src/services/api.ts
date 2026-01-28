@@ -1,13 +1,9 @@
 // API Service untuk koneksi ke backend
-// Implementasi caching LocalStorage untuk semua data GET
+// Implementasi Real-time Data Fetching (In-Memory Only)
 const DIRECT_URL = "/api";
-const CACHE_PREFIX = "portfolio_cache_";
 
-// Helper function untuk API calls dengan LocalStorage caching
+// Helper function untuk API calls langsung tanpa persistent storage
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
-  const isGet = !options.method || options.method === 'GET';
-  const cacheKey = `${CACHE_PREFIX}${endpoint}`;
-
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -16,21 +12,18 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
     const url = `${DIRECT_URL}${endpoint}`;
 
-    const response = await fetch(url, {
+    // Menambahkan timestamp untuk mencegah browser caching pada level HTTP request
+    // jika method adalah GET
+    const finalUrl = (options.method === 'GET' || !options.method) 
+      ? `${url}${url.includes('?') ? '&' : '?'}t=${new Date().getTime()}`
+      : url;
+
+    const response = await fetch(finalUrl, {
       ...options,
       headers,
     });
 
     if (!response.ok) {
-      // Jika API error, coba ambil dari cache localstorage
-      if (isGet) {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          console.warn(`API call failed for ${endpoint}, using cached data from LocalStorage.`);
-          return JSON.parse(cached);
-        }
-      }
-      
       let errorMessage = `HTTP error! status: ${response.status}`;
       try {
         const errorData = await response.json();
@@ -49,27 +42,10 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     }
 
     const data = await response.json();
-    
-    // Simpan data sukses ke LocalStorage
-    if (isGet) {
-      try {
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-      } catch (e) {
-        console.warn('Failed to save to localStorage:', e);
-      }
-    }
-
     return data;
-  } catch (error) {
-    // Jika network error (offline/down), coba ambil dari cache
-    if (isGet) {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        console.warn(`Network error for ${endpoint}, using cached data from LocalStorage.`);
-        return JSON.parse(cached);
-      }
-    }
-    
+  } catch (error: any) {
+    console.error(`API Call Error (${endpoint}):`, error);
+    // Re-throw error agar bisa ditangani oleh React Query / UI
     throw error;
   }
 }

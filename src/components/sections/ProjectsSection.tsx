@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Github, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ExternalLink, Github, ArrowRight, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProjects } from '@/hooks/useProjects';
 import { useProjectCategories } from '@/hooks/useProjectCategories';
 import { useModalStore } from '@/store/modalStore';
 import { AISummaryModal } from '@/components/ui/AISummaryModal';
+import { Button } from '@/components/ui/button';
 
 export const ProjectsSection = () => {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ export const ProjectsSection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 16;
   const { openProjectModal } = useModalStore();
-  const { projects = [], isLoading } = useProjects();
+  const { projects = [], isLoading, isError } = useProjects();
   const [aiProject, setAiProject] = useState<any>(null);
   const [summaryIndices, setSummaryIndices] = useState<Record<number, number>>({});
 
@@ -64,6 +65,19 @@ export const ProjectsSection = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <section id="projects" className="py-20 md:py-32 relative flex flex-col justify-center items-center text-center px-4">
+        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+        <h3 className="text-xl font-semibold mb-2">Gagal Memuat Proyek</h3>
+        <p className="text-muted-foreground mb-6">Terjadi kesalahan saat mengambil data proyek.</p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Coba Lagi
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section id="projects" className="py-12 md:py-16 relative">
       {/* Background Decoration */}
@@ -98,7 +112,7 @@ export const ProjectsSection = () => {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeFilter === filter.id
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -109,176 +123,129 @@ export const ProjectsSection = () => {
         </div>
 
         {/* Projects Grid */}
-        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
-            {displayedProjects.map((project: any, index: number) => (
+            {displayedProjects.map((project: any) => (
               <motion.div
                 key={project.id}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                transition={{ duration: 0.2 }}
+                className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all"
               >
-                <div className="neon-card group rounded-2xl overflow-hidden h-full relative">
-                  {/* Thumbnail */}
-                  <div 
-                    className="relative aspect-video bg-muted overflow-hidden cursor-pointer"
-                    onClick={() => openProjectModal(project)}
-                  >
-                    {project.thumbnail ? (
-                        <img
-                            src={project.thumbnail}
-                            alt={project.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                    ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                            <span className="text-sm">{t('projects.no_thumbnail')}</span>
-                        </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    {/* Category Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-background/80 backdrop-blur-sm text-primary">
-                        {project.category_details?.name?.toUpperCase() || 'PROJECT'}
-                      </span>
-                    </div>
-
-                    {/* AI Insight Button (Always Visible) */}
-                    <div className="absolute top-1/2 right-3 -translate-y-1/2 z-20">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAiProject(project);
-                        }}
-                        className="p-3 rounded-full bg-background/90 backdrop-blur-md shadow-lg border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 group/ai"
-                        title={t('projects.ai_summary') || 'AI Insight'}
+                {/* Image */}
+                <div className="relative aspect-video overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="rounded-full"
+                      onClick={() => openProjectModal(project)}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    {project.github_url && (
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="rounded-full"
+                        onClick={() => window.open(project.github_url, '_blank')}
                       >
-                        <Sparkles className="w-5 h-5 animate-pulse group-hover/ai:animate-none" />
-                      </button>
-                    </div>
+                        <Github className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2 line-clamp-1">{project.title}</h3>
+                  <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.technologies?.slice(0, 3).map((tech: any) => (
+                      <span
+                        key={tech.id}
+                        className="text-xs px-2 py-1 bg-secondary rounded-md"
+                      >
+                        {tech.name}
+                      </span>
+                    ))}
+                    {project.technologies?.length > 3 && (
+                      <span className="text-xs px-2 py-1 bg-secondary rounded-md">
+                        +{project.technologies.length - 3}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-heading font-bold mb-2 group-hover:text-primary transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                      {project.description}
-                    </p>
-
-                    {/* Technologies */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {(Array.isArray(project.techStack) ? project.techStack : []).slice(0, 3).map((tech: string, i: number) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                      {(Array.isArray(project.techStack) ? project.techStack : []).length > 3 && (
-                        <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                          +{(project.techStack?.length || 0) - 3}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Footer Actions */}
-                    <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-border/50">
-                        {/* Links */}
-                        <div className="flex gap-2">
-                            {project.demoUrl && (
-                                <a
-                                href={project.demoUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors text-muted-foreground"
-                                onClick={(e) => e.stopPropagation()}
-                                title="Live Demo"
-                                >
-                                <ExternalLink className="w-4 h-4" />
-                                </a>
-                            )}
-                            {project.repoUrl && (
-                                <a
-                                href={project.repoUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors text-muted-foreground"
-                                onClick={(e) => e.stopPropagation()}
-                                title="Repository"
-                                >
-                                <Github className="w-4 h-4" />
-                                </a>
-                            )}
-                        </div>
-
-                        {/* View Details Button */}
-                        <button
-                        onClick={() => navigate(`/projects/${project.id}`)}
-                        className="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 font-medium text-sm ml-auto flex items-center gap-2"
-                        >
-                        {t('sections.projects.viewDetails') || "Detail"}
-                        <ArrowRight className="w-4 h-4" />
-                        </button>
-                    </div>
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <button
+                      onClick={() => setAiProject(project)}
+                      className="text-xs font-medium text-primary flex items-center gap-1 hover:underline"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      AI Summary
+                    </button>
+                    <button
+                      onClick={() => openProjectModal(project)}
+                      className="text-xs font-medium text-primary flex items-center gap-1 hover:underline"
+                    >
+                      {t('common.read_more')} <ArrowRight className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
-        {/* Pagination Controls */}
+        {/* Empty State */}
+        {displayedProjects.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">{t('projects.no_projects')}</p>
+          </div>
+        )}
+
+        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-4 mt-12">
-            <button
+          <div className="flex justify-center mt-12 gap-2">
+            <Button
+              variant="outline"
               onClick={handlePrevPage}
               disabled={currentPage === 1}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                currentPage === 1
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                  : 'bg-primary/10 text-primary hover:bg-primary/20'
-              }`}
             >
               Previous
-            </button>
-            <span className="flex items-center text-muted-foreground text-sm">
+            </Button>
+            <span className="flex items-center px-4 text-sm font-medium">
               Page {currentPage} of {totalPages}
             </span>
-            <button
+            <Button
+              variant="outline"
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                currentPage === totalPages
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              }`}
             >
               Next
-            </button>
+            </Button>
           </div>
         )}
       </div>
+
       {/* AI Summary Modal */}
-      <AISummaryModal 
-        isOpen={!!aiProject} 
-        onClose={() => {
-            if (aiProject) {
-                 const totalSummaries = aiProject.summaries?.length || 1;
-                 setSummaryIndices(prev => ({
-                   ...prev,
-                   [aiProject.id]: ((prev[aiProject.id] || 0) + 1) % totalSummaries
-                 }));
-            }
-            setAiProject(null);
-        }} 
-        project={aiProject} 
-        startIndex={aiProject ? (summaryIndices[aiProject.id] || 0) : 0}
+      <AISummaryModal
+        isOpen={!!aiProject}
+        onClose={() => setAiProject(null)}
+        projectTitle={aiProject?.title || ''}
+        projectDescription={aiProject?.description || ''}
       />
     </section>
   );

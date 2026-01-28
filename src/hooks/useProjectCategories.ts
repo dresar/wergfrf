@@ -5,7 +5,6 @@ export function useProjectCategories() {
   const categoriesQuery = useQuery({
     queryKey: ['project-categories'],
     queryFn: projectCategoriesAPI.getAll,
-    staleTime: 1000 * 60 * 60, // 1 hour
   });
 
   return {

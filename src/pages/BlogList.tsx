@@ -6,13 +6,14 @@ import { Footer } from '@/components/layout/Footer';
 import { normalizeMediaUrl } from '@/lib/utils';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Calendar, User, Search, ArrowRight } from 'lucide-react';
+import { Calendar, User, Search, ArrowRight, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const BlogList = () => {
-  const { posts, isLoading } = useBlogPosts();
+  const { posts, isLoading, isError, error } = useBlogPosts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,104 +94,109 @@ const BlogList = () => {
             <div className="flex justify-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <AlertCircle className="h-16 w-16 text-destructive mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Gagal Memuat Data</h3>
+              <p className="text-muted-foreground max-w-md mb-6">
+                Terjadi kesalahan saat mengambil data blog. Silakan coba lagi beberapa saat lagi.
+                {error instanceof Error ? ` (${error.message})` : ''}
+              </p>
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Muat Ulang
+              </Button>
+            </div>
           ) : filteredPosts.length > 0 ? (
             <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-[1400px] mx-auto">
               {currentPosts.map((post: any, index: number) => (
                 <div key={post.id} className="relative group">
-                  {/* Neon Glow Effect */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-xl blur opacity-0 group-hover:opacity-75 transition duration-500 group-hover:duration-200 animate-tilt"></div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="relative h-full bg-card rounded-xl overflow-hidden border hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col z-10"
-                  >
-                    <Link to={`/blog/${post.slug}`} className="relative aspect-video overflow-hidden block">
-                      <img
-                        src={post.coverImage || post.coverImageFile ? normalizeMediaUrl(post.coverImage || post.coverImageFile) : "https://placehold.co/600x400?text=Blog+Post"}
-                        alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "https://placehold.co/600x400?text=Blog+Post";
-                        }}
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="bg-primary/90 text-primary-foreground text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]">
-                          {post.category?.name || 'Article'}
-                        </span>
-                      </div>
-                    </Link>
-
-                    <div className="p-5 flex-grow flex flex-col">
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {format(new Date(post.created_at), 'd MMM yyyy', { locale: id })}
+                  <Link to={`/blog/${post.slug}`} className="block h-full">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="bg-card border rounded-xl overflow-hidden h-full hover:shadow-lg transition-all duration-300 flex flex-col"
+                    >
+                      <div className="relative aspect-video overflow-hidden">
+                        <img 
+                          src={normalizeMediaUrl(post.cover_image || post.thumbnail || 'https://images.unsplash.com/photo-1432821596592-e2c18b78144f?w=800&q=80')} 
+                          alt={post.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          <span className="bg-primary/90 text-primary-foreground text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
+                            {post.category?.name || 'Umum'}
+                          </span>
                         </div>
                       </div>
-
-                      <h3 className="text-lg font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                        <Link to={`/blog/${post.slug}`} className="hover:underline decoration-primary/50 underline-offset-4">
+                      
+                      <div className="p-5 flex flex-col flex-grow">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            <span>{post.published_at ? format(new Date(post.published_at), 'dd MMM yyyy', { locale: id }) : '-'}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            <span>{post.author?.username || 'Admin'}</span>
+                          </div>
+                        </div>
+                        
+                        <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                           {post.title}
-                        </Link>
-                      </h3>
-
-                      <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-grow">
-                        {post.excerpt}
-                      </p>
-
-                      <Link 
-                        to={`/blog/${post.slug}`}
-                        className="inline-flex items-center text-primary text-sm font-medium hover:underline mt-auto group/link"
-                      >
-                        Baca Selengkapnya <ArrowRight className="ml-1 w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                      </Link>
-                    </div>
-                  </motion.div>
+                        </h3>
+                        
+                        <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-grow">
+                          {post.excerpt}
+                        </p>
+                        
+                        <div className="flex items-center text-sm text-primary font-medium mt-auto">
+                          Baca Selengkapnya <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
                 </div>
               ))}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-12 gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border rounded-md disabled:opacity-50 hover:bg-secondary transition-colors"
                 >
                   Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => paginate(i + 1)}
-                    className={`px-4 py-2 border rounded-md transition-colors ${
-                      currentPage === i + 1 
-                        ? 'bg-primary text-primary-foreground border-primary' 
-                        : 'hover:bg-secondary'
-                    }`}
+                </Button>
+                {Array.from({ length: totalPages }).map((_, idx) => (
+                  <Button
+                    key={idx}
+                    variant={currentPage === idx + 1 ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => paginate(idx + 1)}
                   >
-                    {i + 1}
-                  </button>
+                    {idx + 1}
+                  </Button>
                 ))}
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 border rounded-md disabled:opacity-50 hover:bg-secondary transition-colors"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             )}
             </>
           ) : (
             <div className="text-center py-20">
-              <h3 className="text-xl font-semibold mb-2">Tidak ada artikel ditemukan</h3>
-              <p className="text-muted-foreground">Coba kata kunci pencarian lain atau kategori berbeda.</p>
+              <p className="text-muted-foreground text-lg">Tidak ada artikel yang ditemukan.</p>
             </div>
           )}
         </div>
