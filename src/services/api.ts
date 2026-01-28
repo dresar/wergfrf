@@ -1,5 +1,38 @@
 // API Service untuk koneksi ke backend
-const DIRECT_URL = "https://porto.apprentice.cyou/api";
+const DIRECT_URL = "/api";
+
+const FALLBACK_PROFILE = {
+    "id": 1,
+    "fullName": "Eka Syarif Maulana",
+    "greeting": "Selamat Datang",
+    "role": "[\"Developer\",\"Designer\"]",
+    "bio": "",
+    "heroImage": "https://porto.apprentice.cyou/media/profile/Untitled_design.png",
+    "heroImageFile": "https://porto.apprentice.cyou/media/profile/Untitled_design.png",
+    "aboutImage": "https://porto.apprentice.cyou/media/profile/Gemini_Generated_Image_d7i0h6d7i0h6d7i0.png",
+    "aboutImageFile": "https://porto.apprentice.cyou/media/profile/Gemini_Generated_Image_d7i0h6d7i0h6d7i0.png",
+    "resumeUrl": "",
+    "resumeFile": "https://porto.apprentice.cyou/media/resume/Biru_Kuning_Modern_Presentasi_Seminar_Proposal_1.pdf",
+    "location": "medan city",
+    "email": "eka.ckp16799@gmail.com",
+    "phone": "6282392115909",
+    "stats_project_count": "29",
+    "stats_exp_years": "5",
+    "map_embed_url": null,
+    "total_certificates": 12,
+    "total_skills": 22
+};
+
+const FALLBACK_SETTINGS = {
+    "id": 1,
+    "theme": "dark",
+    "seoTitle": "My Portfolio",
+    "seoDesc": "Welcome to my portfolio website",
+    "cdn_url": null,
+    "maintenanceMode": false,
+    "maintenance_end_time": "2026-01-28T03:17:00+07:00",
+    "ai_provider": "gemini"
+};
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
@@ -43,7 +76,14 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
 // Profile API
 export const profileAPI = {
-  get: () => apiCall('/profile/'),
+  get: async () => {
+    try {
+      return await apiCall('/profile/');
+    } catch (error) {
+      console.warn('Using fallback profile data due to error:', error);
+      return FALLBACK_PROFILE;
+    }
+  },
 };
 
 // Projects API
@@ -102,7 +142,14 @@ export const messagesAPI = {
 
 // Site Settings API
 export const siteSettingsAPI = {
-  get: () => apiCall('/settings/'),
+  get: async () => {
+    try {
+      return await apiCall('/settings/');
+    } catch (error) {
+      console.warn('Using fallback settings data due to error:', error);
+      return FALLBACK_SETTINGS;
+    }
+  },
 };
 
 // WA Templates API (Public GET)

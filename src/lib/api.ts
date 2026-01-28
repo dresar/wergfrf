@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "https://porto.apprentice.cyou/api";
+const baseURL = "/api";
 
 export const api = axios.create({
   baseURL,
