@@ -1,23 +1,13 @@
-import { 
-  FALLBACK_PROFILE, 
-  FALLBACK_SETTINGS, 
-  FALLBACK_PROJECTS, 
-  FALLBACK_SKILLS, 
-  FALLBACK_EXPERIENCE, 
-  FALLBACK_EDUCATION,
-  FALLBACK_CERTIFICATE_CATEGORIES,
-  FALLBACK_BLOG_POSTS,
-  FALLBACK_PROJECT_CATEGORIES,
-  FALLBACK_CERTIFICATES,
-  FALLBACK_SKILL_CATEGORIES,
-  FALLBACK_SOCIAL_LINKS
-} from '../data/fallbackData';
-
 // API Service untuk koneksi ke backend
+// Implementasi caching LocalStorage untuk semua data GET
 const DIRECT_URL = "/api";
+const CACHE_PREFIX = "portfolio_cache_";
 
-// Helper function untuk API calls
+// Helper function untuk API calls dengan LocalStorage caching
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
+  const isGet = !options.method || options.method === 'GET';
+  const cacheKey = `${CACHE_PREFIX}${endpoint}`;
+
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -32,6 +22,15 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     });
 
     if (!response.ok) {
+      // Jika API error, coba ambil dari cache localstorage
+      if (isGet) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          console.warn(`API call failed for ${endpoint}, using cached data from LocalStorage.`);
+          return JSON.parse(cached);
+        }
+      }
+      
       let errorMessage = `HTTP error! status: ${response.status}`;
       try {
         const errorData = await response.json();
@@ -49,15 +48,27 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       return null;
     }
 
-    return await response.json();
-  } catch (error) {
-    // Suppress console.error for expected fallback scenarios to avoid alarming the user
-    // console.error(`API call failed for ${endpoint}:`, error);
+    const data = await response.json();
     
-    // If it's a JSON parse error (like receiving HTML instead of JSON)
-    // we still throw, but we suppressed the console log above.
-    // The calling functions (profileAPI, projectsAPI, etc.) will catch this 
-    // and return their specific fallback data.
+    // Simpan data sukses ke LocalStorage
+    if (isGet) {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e);
+      }
+    }
+
+    return data;
+  } catch (error) {
+    // Jika network error (offline/down), coba ambil dari cache
+    if (isGet) {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        console.warn(`Network error for ${endpoint}, using cached data from LocalStorage.`);
+        return JSON.parse(cached);
+      }
+    }
     
     throw error;
   }
@@ -65,123 +76,53 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
 // Profile API
 export const profileAPI = {
-  get: async () => {
-    try {
-      return await apiCall('/profile/');
-    } catch (error) {
-      console.warn('Using fallback profile data due to error:', error);
-      return FALLBACK_PROFILE;
-    }
-  },
+  get: async () => apiCall('/profile/'),
 };
 
 // Projects API
 export const projectsAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/projects/');
-    } catch (error) {
-      console.warn('Using fallback projects data due to error:', error);
-      return FALLBACK_PROJECTS;
-    }
-  },
+  getAll: async () => apiCall('/projects/'),
   getById: (id: number) => apiCall(`/projects/${id}/`),
 };
 
 // Project Categories API
 export const projectCategoriesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/project-categories/');
-    } catch (error) {
-      console.log('Using fallback data for project categories');
-      return FALLBACK_PROJECT_CATEGORIES;
-    }
-  },
+  getAll: async () => apiCall('/project-categories/'),
 };
 
 // Experience API
 export const experienceAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/experience/');
-    } catch (error) {
-      console.warn('Using fallback experience data due to error:', error);
-      return FALLBACK_EXPERIENCE;
-    }
-  },
+  getAll: async () => apiCall('/experience/'),
 };
 
 // Skills API
 export const skillsAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/skills/');
-    } catch (error) {
-      console.warn('Using fallback skills data due to error:', error);
-      return FALLBACK_SKILLS;
-    }
-  },
+  getAll: async () => apiCall('/skills/'),
 };
 
 // Skill Categories API
 export const skillCategoriesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/skill-categories/');
-    } catch (error) {
-      console.log('Using fallback data for skill categories');
-      return FALLBACK_SKILL_CATEGORIES;
-    }
-  },
+  getAll: async () => apiCall('/skill-categories/'),
 };
 
 // Certificate Categories API
 export const certificateCategoriesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/certificate-categories/');
-    } catch (error) {
-      console.log('Using fallback data for certificate categories');
-      return FALLBACK_CERTIFICATE_CATEGORIES;
-    }
-  },
+  getAll: async () => apiCall('/certificate-categories/'),
 };
 
 // Education API
 export const educationAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/education/');
-    } catch (error) {
-      console.warn('Using fallback education data due to error:', error);
-      return FALLBACK_EDUCATION;
-    }
-  },
+  getAll: async () => apiCall('/education/'),
 };
 
 // Certificates API
 export const certificatesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/certificates/');
-    } catch (error) {
-      console.log('Using fallback data for certificates');
-      return FALLBACK_CERTIFICATES;
-    }
-  },
+  getAll: async () => apiCall('/certificates/'),
 };
 
 // Social Links API
 export const socialLinksAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/social-links/');
-    } catch (error) {
-      console.log('Using fallback data for social links');
-      return FALLBACK_SOCIAL_LINKS;
-    }
-  },
+  getAll: async () => apiCall('/social-links/'),
 };
 
 // Messages API (Public POST only)
@@ -194,25 +135,12 @@ export const messagesAPI = {
 
 // Site Settings API
 export const siteSettingsAPI = {
-  get: async () => {
-    try {
-      return await apiCall('/settings/');
-    } catch (error) {
-      console.warn('Using fallback settings data due to error:', error);
-      return FALLBACK_SETTINGS;
-    }
-  },
+  get: async () => apiCall('/settings/'),
 };
 
 // WA Templates API (Public GET)
 export const waTemplatesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/wa-templates/');
-    } catch (error) {
-      return [];
-    }
-  },
+  getAll: async () => apiCall('/wa-templates/'),
 };
 
 // Health check
@@ -222,54 +150,21 @@ export const healthAPI = {
 
 // Blog Categories API
 export const blogCategoriesAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/blog-categories/');
-    } catch (error) {
-      return [];
-    }
-  },
+  getAll: async () => apiCall('/blog-categories/'),
 };
 
 // Blog Posts API
 export const blogPostsAPI = {
-  getAll: async () => {
-    try {
-      return await apiCall('/blog-posts/');
-    } catch (error) {
-      console.log('Using fallback data for blog posts');
-      return FALLBACK_BLOG_POSTS;
-    }
-  },
-  getOne: async (slug: string) => {
-    try {
-      return await apiCall(`/blog-posts/${slug}/`);
-    } catch (error) {
-      const post = FALLBACK_BLOG_POSTS.find(p => p.slug === slug);
-      if (post) return post;
-      return null;
-    }
-  },
+  getAll: async () => apiCall('/blog-posts/'),
+  getOne: async (slug: string) => apiCall(`/blog-posts/${slug}/`),
 };
 
 // Home Content API
 export const homeContentAPI = {
-  get: async () => {
-    try {
-      return await apiCall('/home-content/');
-    } catch (error) {
-      return null;
-    }
-  },
+  get: async () => apiCall('/home-content/'),
 };
 
 // About Content API
 export const aboutContentAPI = {
-  get: async () => {
-    try {
-      return await apiCall('/about-content/');
-    } catch (error) {
-      return null;
-    }
-  },
+  get: async () => apiCall('/about-content/'),
 };
