@@ -25,6 +25,7 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 30, // 30 minutes
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
       refetchOnWindowFocus: false,
+      refetchInterval: 1000 * 60 * 30, // Auto-refetch every 30 minutes
     },
   },
 });
