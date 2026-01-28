@@ -7,7 +7,10 @@ import {
   FALLBACK_EDUCATION,
   FALLBACK_CERTIFICATE_CATEGORIES,
   FALLBACK_BLOG_POSTS,
-  FALLBACK_PROJECT_CATEGORIES
+  FALLBACK_PROJECT_CATEGORIES,
+  FALLBACK_CERTIFICATES,
+  FALLBACK_SKILL_CATEGORIES,
+  FALLBACK_SOCIAL_LINKS
 } from '../data/fallbackData';
 
 // API Service untuk koneksi ke backend
@@ -127,7 +130,8 @@ export const skillCategoriesAPI = {
     try {
       return await apiCall('/skill-categories/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for skill categories');
+      return FALLBACK_SKILL_CATEGORIES;
     }
   },
 };
@@ -162,7 +166,8 @@ export const certificatesAPI = {
     try {
       return await apiCall('/certificates/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for certificates');
+      return FALLBACK_CERTIFICATES;
     }
   },
 };
@@ -173,7 +178,8 @@ export const socialLinksAPI = {
     try {
       return await apiCall('/social-links/');
     } catch (error) {
-      return [];
+      console.log('Using fallback data for social links');
+      return FALLBACK_SOCIAL_LINKS;
     }
   },
 };

@@ -207,3 +207,23 @@ export const FALLBACK_SETTINGS = {
     "maintenance_end_time": "2026-01-28T03:17:00+07:00",
     "ai_provider": "gemini"
 };
+
+export const FALLBACK_CERTIFICATES = [
+  {"id":13,"category_details":{"id":4,"name":"Cloud Computing","slug":"cloud-computing"},"name":"Certified Developer Level 1","issuer":"Coursera","issueDate":"2025-04-08","expiryDate":"2027-01-25","credentialUrl":"https://example.com/cert","image":"https://picsum.photos/seed/cert0/400/300","verified":true,"credentialId":"CERT-59982","category":4},
+  {"id":14,"category_details":{"id":3,"name":"Frontend Development","slug":"frontend-development"},"name":"Certified Developer Level 2","issuer":"Udemy","issueDate":"2024-09-12","expiryDate":null,"credentialUrl":"https://example.com/cert","image":"https://picsum.photos/seed/cert1/400/300","verified":true,"credentialId":"CERT-77274","category":3}
+];
+
+export const FALLBACK_SKILL_CATEGORIES = [
+  {"id":1,"name":"Frontend Development","slug":"frontend-development"},
+  {"id":2,"name":"Backend Development","slug":"backend-development"},
+  {"id":3,"name":"Database Management","slug":"database-management"},
+  {"id":4,"name":"DevOps & Cloud","slug":"devops-cloud"},
+  {"id":5,"name":"Soft Skills","slug":"soft-skills"},
+  {"id":6,"name":"biasa","slug":"biasa"}
+];
+
+export const FALLBACK_SOCIAL_LINKS = [
+  {"id":21,"platform":"dev.to","url":"https://dev.to/eka","icon":"dev.to"},
+  {"id":22,"platform":"website","url":"https://eka.com","icon":"website"},
+  {"id":23,"platform":"WhatsApp","url":"https://wa.me/6282392115909","icon":"MessageCircle"}
+];
