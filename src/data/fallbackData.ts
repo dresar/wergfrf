@@ -22,6 +22,11 @@ export const FALLBACK_BLOG_POSTS = [
       "slug": "life-hacks",
       "description": ""
     },
+    "category": {
+      "id": 9,
+      "name": "Life Hacks",
+      "slug": "life-hacks"
+    },
     "title": "The Future of Life Hacks: Insight 1",
     "slug": "the-future-of-life-hacks-insight-1",
     "excerpt": "Discover the latest trends and techniques in Life Hacks. This article covers everything you need to know about Insight 1.",
@@ -30,6 +35,7 @@ export const FALLBACK_BLOG_POSTS = [
     "cover_image": null,
     "created_at": "2026-01-25T12:00:00Z",
     "updated_at": "2026-01-25T12:00:00Z",
+    "is_published": true,
     "author": {
       "id": 1,
       "username": "admin",
