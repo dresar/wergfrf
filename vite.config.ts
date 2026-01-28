@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => ({
         target: "https://porto.apprentice.cyou",
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },
