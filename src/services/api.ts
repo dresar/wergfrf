@@ -41,7 +41,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
         // Jika error tapi bukan JSON (misal HTML 404/500), ambil text sebagian
         try {
           const text = await response.text();
-          console.error(`API Error Response (${endpoint}):`, text.substring(0, 200));
+          // console.error(`API Error Response (${endpoint}):`, text.substring(0, 200));
           errorMessage += " (Non-JSON response)";
         } catch (e) {}
       }
@@ -58,14 +58,14 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     if (!isJson) {
       // Jika status 200 OK tapi bukan JSON (misal HTML index.html karena proxy fail)
       const text = await response.text();
-      console.error(`API Unexpected HTML Response (${endpoint}):`, text.substring(0, 200));
+      // console.error(`API Unexpected HTML Response (${endpoint}):`, text.substring(0, 200));
       throw new Error(`API returned Non-JSON response (HTML). Check proxy/backend configuration.`);
     }
 
     const data = await response.json();
     return data;
   } catch (error: any) {
-    console.error(`API Call Error (${endpoint}):`, error);
+    // console.error(`API Call Error (${endpoint}):`, error);
     // Re-throw error agar bisa ditangani oleh React Query / UI
     throw error;
   }

@@ -64,7 +64,11 @@
     "previous": "Previous",
     "next": "Next",
     "page_info": "Page {{current}} of {{total}}",
-    "all": "All"
+    "all": "All",
+    "retry": "Retry",
+    "link_copied": "Link copied!",
+    "share_label": "Share:",
+    "copy_link": "Copy Link"
   },
   "education": {
     "title": "Education History",
@@ -118,15 +122,63 @@
   "projects": {
     "title": "Featured Projects",
     "subtitle": "Some of the best work I've done",
+    "default_category": "Project",
     "all_projects": "All Projects",
     "view_details": "View Details",
-    "no_thumbnail": "No Thumbnail"
+    "no_thumbnail": "No Thumbnail",
+    "not_found": "Project not found",
+    "back_to_home": "Back to Home",
+    "additional_resources": "Additional Resources",
+    "no_content": "No detailed content for this project.",
+    "live_demo": "Live Demo",
+    "repository": "Repository"
   },
   "blog": {
     "latest_title": "Latest Articles",
     "subtitle": "Thoughts, ideas, and tutorials on technology and software development.",
     "read_more": "Read More",
     "view_all": "View All Articles",
-    "default_category": "Article"
+    "default_category": "Article",
+    "title": "Blog & Articles",
+    "description": "Sharing knowledge, experiences, and insights about the world of technology.",
+    "search_placeholder": "Search articles...",
+    "category_label": "Category",
+    "general": "General",
+    "sort_label": "Sort by",
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "az": "Title (A-Z)",
+      "za": "Title (Z-A)"
+    },
+    "active_filter": "Active filters:",
+    "search_label": "Search:",
+    "reset_filter": "Reset Filter",
+    "error_title": "Failed to Load Data",
+    "error_description": "An error occurred while fetching blog data. Please try again later.",
+    "no_posts": "No articles found.",
+    "clear_filter": "Clear Filter",
+    "not_found": "Article not found",
+    "back_to_blog": "Back to Blog",
+    "share_article": "Share Article",
+    "about_author": "About the Author",
+    "author_role": "Software Engineer & Tech Enthusiast",
+    "author_bio": "Loves sharing experiences about technology, coding, and career development in IT.",
+    "interaction": "Engagement",
+    "likes": "Likes",
+    "views": "Views",
+    "comments": "Comments",
+    "write_comment": "Write a comment..."
+  },
+  "whatsapp": {
+    "title": "Chat via WhatsApp",
+    "description": "Send a message directly to my WhatsApp. Choose a template to start quickly.",
+    "select_template": "Select Template",
+    "select_topic": "Select topic...",
+    "search_template": "Search template...",
+    "template_not_found": "Template not found.",
+    "message_label": "Message",
+    "message_placeholder": "Hello, I would like to discuss...",
+    "send": "Send Message"
   }
 }

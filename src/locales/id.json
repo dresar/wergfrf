@@ -64,7 +64,11 @@
     "previous": "Sebelumnya",
     "next": "Selanjutnya",
     "page_info": "Halaman {{current}} dari {{total}}",
-    "all": "Semua"
+    "all": "Semua",
+    "retry": "Muat Ulang",
+    "link_copied": "Link disalin!",
+    "share_label": "Bagikan:",
+    "copy_link": "Salin Link"
   },
   "education": {
     "title": "Riwayat Pendidikan",
@@ -118,15 +122,63 @@
   "projects": {
     "title": "Proyek Unggulan",
     "subtitle": "Beberapa hasil karya terbaik yang pernah saya kerjakan",
+    "default_category": "Proyek",
     "all_projects": "Semua Proyek",
     "view_details": "Lihat Detail",
-    "no_thumbnail": "Tidak Ada Gambar"
+    "no_thumbnail": "Tidak Ada Gambar",
+    "not_found": "Proyek tidak ditemukan",
+    "back_to_home": "Kembali ke Beranda",
+    "additional_resources": "Sumber Daya Tambahan",
+    "no_content": "Tidak ada konten detail untuk proyek ini.",
+    "live_demo": "Live Demo",
+    "repository": "Repository"
   },
   "blog": {
     "latest_title": "Artikel Terbaru",
     "subtitle": "Tulisan, pemikiran, dan tutorial seputar teknologi dan pengembangan software.",
     "read_more": "Baca Selengkapnya",
     "view_all": "Lihat Semua Artikel",
-    "default_category": "Artikel"
+    "default_category": "Artikel",
+    "title": "Blog & Artikel",
+    "description": "Berbagi pengetahuan, pengalaman, dan pandangan seputar dunia teknologi.",
+    "search_placeholder": "Cari artikel...",
+    "category_label": "Kategori",
+    "general": "Umum",
+    "sort_label": "Urutkan",
+    "sort": {
+      "newest": "Terbaru",
+      "oldest": "Terlama",
+      "az": "Judul (A-Z)",
+      "za": "Judul (Z-A)"
+    },
+    "active_filter": "Filter aktif:",
+    "search_label": "Pencarian:",
+    "reset_filter": "Reset Filter",
+    "error_title": "Gagal Memuat Data",
+    "error_description": "Terjadi kesalahan saat mengambil data blog. Silakan coba lagi beberapa saat lagi.",
+    "no_posts": "Tidak ada artikel yang ditemukan.",
+    "clear_filter": "Hapus Filter",
+    "not_found": "Artikel tidak ditemukan",
+    "back_to_blog": "Kembali ke Blog",
+    "share_article": "Bagikan Artikel",
+    "about_author": "Tentang Penulis",
+    "author_role": "Software Engineer & Tech Enthusiast",
+    "author_bio": "Suka berbagi pengalaman seputar teknologi, coding, dan pengembangan karir di dunia IT.",
+    "interaction": "Interaksi",
+    "likes": "Suka",
+    "views": "Dilihat",
+    "comments": "Komentar",
+    "write_comment": "Tulis komentar..."
+  },
+  "whatsapp": {
+    "title": "Chat via WhatsApp",
+    "description": "Kirim pesan langsung ke WhatsApp saya. Pilih template untuk memulai dengan cepat.",
+    "select_template": "Pilih Template",
+    "select_topic": "Pilih topik pembicaraan...",
+    "search_template": "Cari template...",
+    "template_not_found": "Template tidak ditemukan.",
+    "message_label": "Pesan",
+    "message_placeholder": "Halo, saya ingin berdiskusi tentang...",
+    "send": "Kirim Pesan"
   }
 }

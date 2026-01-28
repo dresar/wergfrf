@@ -41,14 +41,11 @@ const Index = () => {
       {/* Footer */}
       <Footer />
       
-      {/* Floating WhatsApp Button */}
-      <FloatingWhatsApp />
-
-      {/* Scroll To Top Button */}
-      <ScrollToTop />
-      
       {/* Global Modal System */}
       <GlobalModal />
+      
+      <FloatingWhatsApp />
+      <ScrollToTop />
     </div>
   );
 };

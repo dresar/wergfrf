@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
 import { useQuery } from '@tanstack/react-query';
 import { waTemplatesAPI } from '@/services/api';
@@ -39,6 +40,7 @@ interface WATemplate {
 }
 
 export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: boolean; onClose?: () => void }) => {
+  const { t } = useTranslation();
   const { socialLinks = [] } = useSocialLinks();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -160,17 +162,17 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-[#25D366]" />
-              Chat via WhatsApp
+              {t('whatsapp.title')}
             </DialogTitle>
             <DialogDescription>
-              Kirim pesan langsung ke WhatsApp saya. Pilih template untuk memulai dengan cepat.
+              {t('whatsapp.description')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             {templates.length > 0 && (
               <div className="space-y-2">
-                <Label>Pilih Template</Label>
+                <Label>{t('whatsapp.select_template')}</Label>
                 <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                   <PopoverTrigger asChild>
                     <Button
@@ -181,15 +183,15 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
                     >
                       {selectedTemplate
                         ? templates.find((t: WATemplate) => t.id.toString() === selectedTemplate)?.template_name
-                        : "Pilih topik pembicaraan..."}
+                        : t('whatsapp.select_topic')}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Cari template..." />
+                      <CommandInput placeholder={t('whatsapp.search_template')} />
                       <CommandList>
-                        <CommandEmpty>Template tidak ditemukan.</CommandEmpty>
+                        <CommandEmpty>{t('whatsapp.template_not_found')}</CommandEmpty>
                         <CommandGroup>
                           {templates.map((template: WATemplate) => (
                             <CommandItem
@@ -218,21 +220,21 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
             )}
             
             <div className="space-y-2">
-              <Label>Pesan</Label>
+              <Label>{t('whatsapp.message_label')}</Label>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Halo, saya ingin berdiskusi tentang..."
+                placeholder={t('whatsapp.message_placeholder')}
                 className="min-h-[100px]"
               />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>Batal</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleSend} className="bg-[#25D366] hover:bg-[#128C7E] text-white">
               <Send className="w-4 h-4 mr-2" />
-              Kirim Pesan
+              {t('whatsapp.send')}
             </Button>
           </DialogFooter>
         </DialogContent>

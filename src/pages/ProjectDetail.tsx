@@ -12,6 +12,8 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { AISummaryModal } from '@/components/ui/AISummaryModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FloatingWhatsApp } from '@/components/effects/FloatingWhatsApp';
+import { ScrollToTop } from '@/components/effects/ScrollToTop';
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,7 +137,7 @@ const ProjectDetail = () => {
             className="inline-flex items-center text-muted-foreground hover:text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali ke Beranda
+            {t('projects.back_to_home')}
           </Link>
 
           {/* Project Header */}
@@ -144,7 +146,7 @@ const ProjectDetail = () => {
             <div className="order-2 lg:order-1 lg:col-span-5 space-y-6">
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                     <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 px-3 py-1">
-                        {project.category_details?.name || 'Project'}
+                        {project.category_details?.name || t('projects.default_category')}
                     </Badge>
                     {project.createdAt && (
                         <Badge variant="secondary" className="text-muted-foreground bg-muted/50 font-normal">
@@ -191,7 +193,7 @@ const ProjectDetail = () => {
                         <Button asChild size="sm" className="h-9">
                             <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="w-4 h-4 mr-2" />
-                                Live Demo
+                                {t('projects.live_demo')}
                             </a>
                         </Button>
                     )}
@@ -199,7 +201,7 @@ const ProjectDetail = () => {
                         <Button variant="outline" asChild size="sm" className="h-9">
                             <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                                 <Github className="w-4 h-4 mr-2" />
-                                Repository
+                                {t('projects.repository')}
                             </a>
                         </Button>
                     )}
@@ -330,6 +332,9 @@ const ProjectDetail = () => {
         onClose={() => setAiModalOpen(false)} 
         project={project} 
       />
+      
+      <FloatingWhatsApp />
+      <ScrollToTop />
     </div>
   );
 };

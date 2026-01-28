@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,10 @@ import { Loader2 } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeApplicator } from "@/components/effects/ThemeApplicator";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
+import { Preloader } from "@/components/ui/Preloader";
+import { dataManager } from "@/services/dataManager";
+import { FloatingWhatsApp } from '@/components/effects/FloatingWhatsApp';
+import { ScrollToTop } from '@/components/effects/ScrollToTop';
 
 const BlogList = lazy(() => import("./pages/BlogList"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
@@ -38,16 +42,30 @@ const queryClient = new QueryClient({
   },
 });
 
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-muted-foreground text-sm">Memuat data real-time...</p>
-    </div>
-  </div>
-);
-
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if we have cached data for critical endpoints
+    // If we do, we can skip the long loading animation
+    const checkCache = () => {
+      // Simple heuristic: check if profile data exists in localStorage
+      // We assume dataManager uses the prefix defined in its config (default: portfolio_cache_)
+      // This is a rough check to decide animation duration
+      const hasCache = Object.keys(localStorage).some(key => key.startsWith('portfolio_cache_'));
+      
+      if (hasCache) {
+        // Fast load for returning visitors (just enough time to prevent flicker)
+        setTimeout(() => setIsLoading(false), 500);
+      } else {
+        // Longer animation for first-time visitors
+        setTimeout(() => setIsLoading(false), 2500);
+      }
+    };
+
+    checkCache();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -55,9 +73,12 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          
+          {isLoading && <Preloader />}
+
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ErrorBoundary>
-              <Suspense fallback={<LoadingFallback />}>
+              <Suspense fallback={null}> {/* Fallback handled by Preloader initially */}
                 <MaintenanceGuard>
                   <Routes>
                     <Route path="/" element={<Index />} />
@@ -67,6 +88,9 @@ const App = () => {
                     
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  {/* Global Floating Elements */}
+                  <FloatingWhatsApp />
+                  <ScrollToTop />
                 </MaintenanceGuard>
               </Suspense>
             </ErrorBoundary>

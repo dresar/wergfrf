@@ -106,15 +106,15 @@ export class DataManager {
       const isValid = age < this.config.ttl && cachedItem.version === this.config.version;
 
       if (isValid) {
-        console.log(`[DataManager] Serving from cache: ${endpoint} (Age: ${Math.round(age/1000)}s)`);
+        // console.log(`[DataManager] Serving from cache: ${endpoint} (Age: ${Math.round(age/1000)}s)`);
         return cachedItem.data;
       }
-      console.log(`[DataManager] Cache expired for: ${endpoint} (Age: ${Math.round(age/1000)}s)`);
+      // console.log(`[DataManager] Cache expired for: ${endpoint} (Age: ${Math.round(age/1000)}s)`);
     }
 
     // 3. Fetch from API
     try {
-      console.log(`[DataManager] Fetching fresh data: ${endpoint}`);
+      // console.log(`[DataManager] Fetching fresh data: ${endpoint}`);
       const data = await apiCall(endpoint, options);
       
       // 4. Save to cache
@@ -127,16 +127,16 @@ export class DataManager {
       try {
         localStorage.setItem(storageKey, JSON.stringify(cacheEntry));
       } catch (e) {
-        console.warn('Failed to save to localStorage (quota exceeded?)', e);
+        // console.warn('Failed to save to localStorage (quota exceeded?)', e);
       }
 
       return data as T;
     } catch (error) {
-      console.error(`[DataManager] Fetch failed for ${endpoint}`, error);
+      // console.error(`[DataManager] Fetch failed for ${endpoint}`, error);
       
       // 5. Fallback to stale cache if available
       if (cachedItem) {
-        console.warn(`[DataManager] Returning stale cache for ${endpoint} due to network error`);
+        // console.warn(`[DataManager] Returning stale cache for ${endpoint} due to network error`);
         return cachedItem.data;
       }
       
