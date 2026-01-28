@@ -18,6 +18,16 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  preview: {
+    port: 8080,
+    proxy: {
+      "/api": {
+        target: "https://porto.apprentice.cyou",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   plugins: [react()],
   resolve: {
     alias: {

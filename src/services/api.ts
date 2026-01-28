@@ -70,6 +70,15 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     return await response.json();
   } catch (error) {
     console.error(`API call failed for ${endpoint}:`, error);
+    
+    // If it's a JSON parse error (like receiving HTML instead of JSON)
+    // or if the request failed completely
+    // Return empty/null data for non-critical endpoints instead of crashing
+    if (error instanceof SyntaxError && error.message.includes("Unexpected token")) {
+        console.warn(`Received invalid JSON from ${endpoint}. Returning null/empty.`);
+        return []; // Most endpoints return arrays, so this is a safe default for lists
+    }
+    
     throw error;
   }
 }
