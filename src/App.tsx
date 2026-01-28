@@ -18,7 +18,21 @@ const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+// Configure Query Client with caching strategies
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+// Create Persister for Local Storage
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+});
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-background">
@@ -32,12 +46,12 @@ const App = () => {
       client={queryClient} 
       persistOptions={{ persister }}
     >
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <ThemeApplicator />
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <ThemeApplicator />
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
                 <MaintenanceGuard>
@@ -52,11 +66,11 @@ const App = () => {
                 </MaintenanceGuard>
               </Suspense>
             </ErrorBoundary>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </PersistQueryClientProvider>
-);
+  );
 };
 
 export default App;
