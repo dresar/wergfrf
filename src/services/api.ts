@@ -71,55 +71,57 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
   }
 }
 
+import { dataManager } from './dataManager';
+
 // Profile API
 export const profileAPI = {
-  get: async () => apiCall('/profile/'),
+  get: async () => dataManager.fetchWithCache('/profile/'),
 };
 
 // Projects API
 export const projectsAPI = {
-  getAll: async () => apiCall('/projects/'),
-  getById: (id: number) => apiCall(`/projects/${id}/`),
+  getAll: async () => dataManager.fetchWithCache('/projects/'),
+  getById: (id: number) => dataManager.fetchWithCache(`/projects/${id}/`),
 };
 
 // Project Categories API
 export const projectCategoriesAPI = {
-  getAll: async () => apiCall('/project-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/project-categories/'),
 };
 
 // Experience API
 export const experienceAPI = {
-  getAll: async () => apiCall('/experience/'),
+  getAll: async () => dataManager.fetchWithCache('/experience/'),
 };
 
 // Skills API
 export const skillsAPI = {
-  getAll: async () => apiCall('/skills/'),
+  getAll: async () => dataManager.fetchWithCache('/skills/'),
 };
 
 // Skill Categories API
 export const skillCategoriesAPI = {
-  getAll: async () => apiCall('/skill-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/skill-categories/'),
 };
 
 // Certificate Categories API
 export const certificateCategoriesAPI = {
-  getAll: async () => apiCall('/certificate-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/certificate-categories/'),
 };
 
 // Education API
 export const educationAPI = {
-  getAll: async () => apiCall('/education/'),
+  getAll: async () => dataManager.fetchWithCache('/education/'),
 };
 
 // Certificates API
 export const certificatesAPI = {
-  getAll: async () => apiCall('/certificates/'),
+  getAll: async () => dataManager.fetchWithCache('/certificates/'),
 };
 
 // Social Links API
 export const socialLinksAPI = {
-  getAll: async () => apiCall('/social-links/'),
+  getAll: async () => dataManager.fetchWithCache('/social-links/'),
 };
 
 // Messages API (Public POST only)
@@ -132,36 +134,36 @@ export const messagesAPI = {
 
 // Site Settings API
 export const siteSettingsAPI = {
-  get: async () => apiCall('/settings/'),
+  get: async () => dataManager.fetchWithCache('/settings/'),
 };
 
 // WA Templates API (Public GET)
 export const waTemplatesAPI = {
-  getAll: async () => apiCall('/wa-templates/'),
+  getAll: async () => dataManager.fetchWithCache('/wa-templates/'),
 };
 
 // Health check
 export const healthAPI = {
-  check: () => apiCall('/health/'),
+  check: () => apiCall('/health/'), // Health check should not be cached
 };
 
 // Blog Categories API
 export const blogCategoriesAPI = {
-  getAll: async () => apiCall('/blog-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/blog-categories/'),
 };
 
 // Blog Posts API
 export const blogPostsAPI = {
-  getAll: async () => apiCall('/blog-posts/'),
-  getOne: async (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
+  getAll: async () => dataManager.fetchWithCache('/blog-posts/'),
+  getOne: async (slug: string) => dataManager.fetchWithCache(`/blog-posts/by_slug/?slug=${slug}`),
 };
 
 // Home Content API
 export const homeContentAPI = {
-  get: async () => apiCall('/home-content/'),
+  get: async () => dataManager.fetchWithCache('/home-content/'),
 };
 
 // About Content API
 export const aboutContentAPI = {
-  get: async () => apiCall('/about-content/'),
+  get: async () => dataManager.fetchWithCache('/about-content/'),
 };
