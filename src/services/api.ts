@@ -1,38 +1,14 @@
+import { 
+  FALLBACK_PROFILE, 
+  FALLBACK_SETTINGS, 
+  FALLBACK_PROJECTS, 
+  FALLBACK_SKILLS, 
+  FALLBACK_EXPERIENCE, 
+  FALLBACK_EDUCATION 
+} from '../data/fallbackData';
+
 // API Service untuk koneksi ke backend
 const DIRECT_URL = "/api";
-
-const FALLBACK_PROFILE = {
-    "id": 1,
-    "fullName": "Eka Syarif Maulana",
-    "greeting": "Selamat Datang",
-    "role": "[\"Developer\",\"Designer\"]",
-    "bio": "",
-    "heroImage": "https://porto.apprentice.cyou/media/profile/Untitled_design.png",
-    "heroImageFile": "https://porto.apprentice.cyou/media/profile/Untitled_design.png",
-    "aboutImage": "https://porto.apprentice.cyou/media/profile/Gemini_Generated_Image_d7i0h6d7i0h6d7i0.png",
-    "aboutImageFile": "https://porto.apprentice.cyou/media/profile/Gemini_Generated_Image_d7i0h6d7i0h6d7i0.png",
-    "resumeUrl": "",
-    "resumeFile": "https://porto.apprentice.cyou/media/resume/Biru_Kuning_Modern_Presentasi_Seminar_Proposal_1.pdf",
-    "location": "medan city",
-    "email": "eka.ckp16799@gmail.com",
-    "phone": "6282392115909",
-    "stats_project_count": "29",
-    "stats_exp_years": "5",
-    "map_embed_url": null,
-    "total_certificates": 12,
-    "total_skills": 22
-};
-
-const FALLBACK_SETTINGS = {
-    "id": 1,
-    "theme": "dark",
-    "seoTitle": "My Portfolio",
-    "seoDesc": "Welcome to my portfolio website",
-    "cdn_url": null,
-    "maintenanceMode": false,
-    "maintenance_end_time": "2026-01-28T03:17:00+07:00",
-    "ai_provider": "gemini"
-};
 
 // Helper function untuk API calls
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
@@ -70,15 +46,6 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     return await response.json();
   } catch (error) {
     console.error(`API call failed for ${endpoint}:`, error);
-    
-    // If it's a JSON parse error (like receiving HTML instead of JSON)
-    // or if the request failed completely
-    // Return empty/null data for non-critical endpoints instead of crashing
-    if (error instanceof SyntaxError && error.message.includes("Unexpected token")) {
-        console.warn(`Received invalid JSON from ${endpoint}. Returning null/empty.`);
-        return []; // Most endpoints return arrays, so this is a safe default for lists
-    }
-    
     throw error;
   }
 }
@@ -97,48 +64,106 @@ export const profileAPI = {
 
 // Projects API
 export const projectsAPI = {
-  getAll: () => apiCall('/projects/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/projects/');
+    } catch (error) {
+      console.warn('Using fallback projects data due to error:', error);
+      return FALLBACK_PROJECTS;
+    }
+  },
   getById: (id: number) => apiCall(`/projects/${id}/`),
 };
 
 // Project Categories API
 export const projectCategoriesAPI = {
-  getAll: () => apiCall('/project-categories/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/project-categories/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Experience API
 export const experienceAPI = {
-  getAll: () => apiCall('/experience/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/experience/');
+    } catch (error) {
+      console.warn('Using fallback experience data due to error:', error);
+      return FALLBACK_EXPERIENCE;
+    }
+  },
 };
 
 // Skills API
 export const skillsAPI = {
-  getAll: () => apiCall('/skills/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/skills/');
+    } catch (error) {
+      console.warn('Using fallback skills data due to error:', error);
+      return FALLBACK_SKILLS;
+    }
+  },
 };
 
 // Skill Categories API
 export const skillCategoriesAPI = {
-  getAll: () => apiCall('/skill-categories/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/skill-categories/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Certificate Categories API
 export const certificateCategoriesAPI = {
-  getAll: () => apiCall('/certificate-categories/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/certificate-categories/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Education API
 export const educationAPI = {
-  getAll: () => apiCall('/education/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/education/');
+    } catch (error) {
+      console.warn('Using fallback education data due to error:', error);
+      return FALLBACK_EDUCATION;
+    }
+  },
 };
 
 // Certificates API
 export const certificatesAPI = {
-  getAll: () => apiCall('/certificates/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/certificates/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Social Links API
 export const socialLinksAPI = {
-  getAll: () => apiCall('/social-links/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/social-links/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Messages API (Public POST only)
@@ -163,7 +188,13 @@ export const siteSettingsAPI = {
 
 // WA Templates API (Public GET)
 export const waTemplatesAPI = {
-  getAll: () => apiCall('/wa-templates/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/wa-templates/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Health check
@@ -173,22 +204,46 @@ export const healthAPI = {
 
 // Blog Categories API
 export const blogCategoriesAPI = {
-  getAll: () => apiCall('/blog-categories/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/blog-categories/');
+    } catch (error) {
+      return [];
+    }
+  },
 };
 
 // Blog Posts API
 export const blogPostsAPI = {
-  getAll: () => apiCall('/blog-posts/'),
+  getAll: async () => {
+    try {
+      return await apiCall('/blog-posts/');
+    } catch (error) {
+      return [];
+    }
+  },
   getBySlug: (slug: string) => apiCall(`/blog-posts/by_slug/?slug=${slug}`),
   getById: (id: number) => apiCall(`/blog-posts/${id}/`),
 };
 
 // Home Content API
 export const homeContentAPI = {
-  get: () => apiCall('/home-content/'),
+  get: async () => {
+    try {
+      return await apiCall('/home-content/');
+    } catch (error) {
+      return null;
+    }
+  },
 };
 
 // About Content API
 export const aboutContentAPI = {
-  get: () => apiCall('/about-content/'),
+  get: async () => {
+    try {
+      return await apiCall('/about-content/');
+    } catch (error) {
+      return null;
+    }
+  },
 };

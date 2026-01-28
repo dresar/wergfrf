@@ -5,13 +5,14 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true, // Listen on all addresses
     port: 8080,
     proxy: {
       "/api": {
         target: "https://porto.apprentice.cyou",
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'), // Explicit rewrite
       },
     },
     hmr: {
@@ -25,6 +26,7 @@ export default defineConfig(({ mode }) => ({
         target: "https://porto.apprentice.cyou",
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },
