@@ -37,11 +37,11 @@ const ProjectDetail = () => {
   const allImages = useMemo(() => {
     if (!project) return [];
     const images = [];
-    if (project.cover_image || project.thumbnail) {
-      images.push(project.cover_image || project.thumbnail);
+    if (project.coverImage || project.thumbnail) {
+      images.push(normalizeMediaUrl(project.coverImage || project.thumbnail));
     }
     if (project.images && project.images.length > 0) {
-      project.images.forEach((img: any) => images.push(img.image));
+      project.images.forEach((img: any) => images.push(normalizeMediaUrl(img.image)));
     }
     return images;
   }, [project]);
@@ -127,8 +127,8 @@ const ProjectDetail = () => {
             <meta name="description" content={project.description} />
             <meta property="og:title" content={project.title} />
             <meta property="og:description" content={project.description} />
-            {(project.cover_image || project.thumbnail) && (
-              <meta property="og:image" content={normalizeMediaUrl(project.cover_image || project.thumbnail)} />
+            {(project.coverImage || project.thumbnail) && (
+              <meta property="og:image" content={normalizeMediaUrl(project.coverImage || project.thumbnail)} />
             )}
           </Helmet>
 

@@ -88,11 +88,15 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
   };
 
   const handleSend = () => {
-    if (!whatsappLink) return;
+    // Fallback URL if no specific WhatsApp link is configured
+    // This allows the feature to work (generic wa.me) or prompts user
+    let url = whatsappLink?.url || 'https://wa.me/';
     
-    // Extract number from URL if possible, or just append text parameter
-    // Assuming whatsappLink.url is like https://wa.me/6281234567890
-    let url = whatsappLink.url;
+    if (!whatsappLink && !url.includes('wa.me/') && !url.includes('whatsapp.com')) {
+       alert(t('whatsapp.no_number_configured'));
+       return;
+    }
+    
     if (message) {
       const separator = url.includes('?') ? '&' : '?';
       url = `${url}${separator}text=${encodeURIComponent(message)}`;
@@ -104,7 +108,8 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
     setSelectedTemplate('');
   };
 
-  if (!whatsappLink) return null;
+  // Always show the button, even if no link is configured (for visibility)
+  // if (!whatsappLink) return null; 
 
   return (
     <>
@@ -157,7 +162,7 @@ export const FloatingWhatsApp = ({ forceOpen = false, onClose }: { forceOpen?: b
         </motion.button>
       )}
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={(open) => !open ? handleClose() : setIsOpen(open)}>
         <DialogContent className="sm:max-w-[425px] w-[95vw]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

@@ -38,7 +38,7 @@ export const ContactSection = () => {
   const { mutate: sendMessage, isPending: isSending } = useMutation({
     mutationFn: messagesAPI.create,
     onSuccess: () => {
-      toast.success('Message sent successfully! I will get back to you soon.');
+      toast.success(t('contact.toast.success'));
       setFormData({
         name: '',
         email: '',
@@ -48,7 +48,7 @@ export const ContactSection = () => {
     },
     onError: (error) => {
       console.error('Failed to send message:', error);
-      toast.error('Failed to send message. Please try again later.');
+      toast.error(t('contact.toast.error'));
     },
   });
 
@@ -197,7 +197,7 @@ export const ContactSection = () => {
                 ) : (
                   <Send className="w-5 h-5 mr-2 inline" />
                 )}
-                {isSending ? 'Mengirim...' : 'Kirim Pesan Sekarang'}
+                {isSending ? t('contact.form.sending') : t('contact.form.send')}
               </ShinyButton>
             </form>
           </motion.div>

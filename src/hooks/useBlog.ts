@@ -8,7 +8,12 @@ export function useBlogPosts() {
     queryFn: blogPostsAPI.getAll,
   });
 
-  const posts = useMemo(() => postsQuery.data || [], [postsQuery.data]);
+  const posts = useMemo(() => {
+    const data = postsQuery.data;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
+  }, [postsQuery.data]);
 
   return {
     posts,
@@ -32,7 +37,12 @@ export function useBlogCategories() {
     queryFn: blogCategoriesAPI.getAll,
   });
 
-  const categories = useMemo(() => categoriesQuery.data || [], [categoriesQuery.data]);
+  const categories = useMemo(() => {
+    const data = categoriesQuery.data;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
+  }, [categoriesQuery.data]);
 
   return {
     categories,

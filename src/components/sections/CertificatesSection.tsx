@@ -7,6 +7,7 @@ import { useCertificates } from '@/hooks/useCertificates';
 import { useModalStore } from '@/store/modalStore';
 import { certificateCategoriesAPI } from '@/services/api';
 import { Button } from '@/components/ui/button';
+import { normalizeMediaUrl } from '@/lib/utils';
 
 export const CertificatesSection = () => {
   const { t } = useTranslation();
@@ -14,7 +15,7 @@ export const CertificatesSection = () => {
   const { certificates = [], isLoading, refetch } = useCertificates();
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 15;
 
   const { data: categories = [] } = useQuery({
     queryKey: ['certificateCategories'],
@@ -138,7 +139,7 @@ export const CertificatesSection = () => {
                   <div className="relative h-48 bg-muted overflow-hidden">
                     {cert.image ? (
                       <img
-                        src={cert.image}
+                        src={normalizeMediaUrl(cert.image)}
                         alt={cert.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />

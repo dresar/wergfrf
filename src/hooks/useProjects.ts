@@ -8,7 +8,12 @@ export function useProjects() {
     queryFn: projectsAPI.getAll,
   });
 
-  const projects = useMemo(() => projectsQuery.data || [], [projectsQuery.data]);
+  const projects = useMemo(() => {
+    const data = projectsQuery.data;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
+  }, [projectsQuery.data]);
 
   return {
     projects,

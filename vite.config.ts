@@ -9,12 +9,12 @@ export default defineConfig(({ mode }) => ({
     port: 8084,
     proxy: {
       "/api": {
-        target: "https://porto.apprentice.cyou", 
+        target: "http://localhost:3000", 
         changeOrigin: true,
         secure: false,
       },
       "/media": {
-        target: "https://porto.apprentice.cyou",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
     port: 8084,
     proxy: {
       "/api": {
-        target: "https://porto.apprentice.cyou",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },

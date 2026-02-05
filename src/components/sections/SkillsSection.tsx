@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useTranslation } from 'react-i18next';
@@ -15,12 +15,14 @@ interface SkillCategory {
 }
 
 const getIconForCategory = (slug: string) => {
-  if (slug.includes('front') || slug.includes('back') || slug.includes('dev')) return Code2;
-  if (slug.includes('design') || slug.includes('ui') || slug.includes('ux')) return Palette;
-  if (slug.includes('soft')) return Users;
-  if (slug.includes('lang')) return Globe;
-  if (slug.includes('data')) return Database;
-  if (slug.includes('cloud') || slug.includes('ops')) return Cloud;
+  if (!slug) return Code2;
+  const s = slug.toLowerCase();
+  if (s.includes('front') || s.includes('back') || s.includes('dev')) return Code2;
+  if (s.includes('design') || s.includes('ui') || s.includes('ux')) return Palette;
+  if (s.includes('soft')) return Users;
+  if (s.includes('lang')) return Globe;
+  if (s.includes('data')) return Database;
+  if (s.includes('cloud') || s.includes('ops')) return Cloud;
   return Code2;
 };
 
@@ -46,9 +48,28 @@ export const SkillsSection = () => {
     }
   }, [categories, activeTab]);
 
-  const filteredSkills = activeTab 
-    ? skills.filter((skill) => skill.category === activeTab)
-    : [];
+  const filteredSkills = useMemo(() => {
+    if (!activeTab) return [];
+    
+    // Find the current category object based on activeTab ID
+    const currentCategory = categories.find((c: any) => c.id === activeTab);
+    if (!currentCategory) return [];
+
+    return skills.filter((skill: any) => {
+       // Case 1: skill.category is an object with ID
+       if (typeof skill.category === 'object' && skill.category !== null) {
+          return skill.category.id === activeTab || skill.category.name === currentCategory.name;
+       }
+       
+       // Case 2: skill.category is a string (name) - This matches what we saw in SkillList.tsx
+       if (typeof skill.category === 'string') {
+          return skill.category.toLowerCase() === currentCategory.name.toLowerCase();
+       }
+       
+       // Case 3: skill.category is just the ID (number)
+       return skill.category === activeTab;
+    });
+  }, [skills, activeTab, categories]);
 
   if (isSkillsLoading || isCategoriesLoading) {
     return (

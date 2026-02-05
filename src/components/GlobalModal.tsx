@@ -1,12 +1,34 @@
-import { motion, AnimatePresence } from 'framer-motion';
+  import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Github, ChevronLeft, ChevronRight, Award, FileText, Play } from 'lucide-react';
 import { useModalStore } from '@/store/modalStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+
+import { normalizeMediaUrl } from '@/lib/utils';
 
 export const GlobalModal = () => {
   const { isOpen, modalType, projectData, educationData, documentUrl, documentTitle, certificateData, closeModal } = useModalStore();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  // Parse gallery data safely
+  const educationGallery = useMemo(() => {
+    if (!educationData?.gallery) return [];
+    if (Array.isArray(educationData.gallery)) return educationData.gallery;
+    try {
+      // Handle if it's a string (JSON or just a string)
+      if (typeof educationData.gallery === 'string') {
+          if (educationData.gallery.startsWith('[')) {
+             return JSON.parse(educationData.gallery);
+          }
+          // If it's a single URL string, wrap it
+          return [{ url: educationData.gallery, caption: '' }];
+      }
+      return [];
+    } catch (e) {
+      console.error("Failed to parse gallery", e);
+      return [];
+    }
+  }, [educationData]);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,14 +50,14 @@ export const GlobalModal = () => {
   };
 
   const nextImage = () => {
-    if (educationData?.gallery) {
-      setCurrentImageIndex((prev) => (prev + 1) % educationData.gallery.length);
+    if (educationGallery.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % educationGallery.length);
     }
   };
 
   const prevImage = () => {
-    if (educationData?.gallery) {
-      setCurrentImageIndex((prev) => (prev - 1 + educationData.gallery.length) % educationData.gallery.length);
+    if (educationGallery.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + educationGallery.length) % educationGallery.length);
     }
   };
 
@@ -238,10 +260,24 @@ export const GlobalModal = () => {
                 
                 {/* Gallery Carousel */}
                 <div className="relative mb-6 rounded-xl overflow-hidden bg-muted aspect-video">
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <span className="text-lg">{educationData.gallery[currentImageIndex]?.caption || 'Gallery Image'}</span>
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground relative">
+                     {educationGallery[currentImageIndex] ? (
+                        <img 
+                            src={typeof educationGallery[currentImageIndex] === 'string' ? educationGallery[currentImageIndex] : educationGallery[currentImageIndex].url} 
+                            alt="Gallery" 
+                            className="w-full h-full object-contain" 
+                        />
+                     ) : (
+                        <span className="text-lg">No Image</span>
+                     )}
+                     
+                     {educationGallery[currentImageIndex]?.caption && (
+                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-center text-sm">
+                             {educationGallery[currentImageIndex].caption}
+                         </div>
+                     )}
                   </div>
-                  {educationData.gallery.length > 1 && (
+                  {educationGallery.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
@@ -261,17 +297,19 @@ export const GlobalModal = () => {
 
                 {/* Thumbnails */}
                 <div className="flex gap-2 overflow-x-auto pb-2">
-                  {educationData.gallery.map((photo, index) => (
+                  {educationGallery.map((photo: any, index: number) => (
                     <button
-                      key={photo.id}
+                      key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden bg-muted ${
                         currentImageIndex === index ? 'ring-2 ring-primary' : ''
                       }`}
                     >
-                      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                        {index + 1}
-                      </div>
+                      <img 
+                        src={typeof photo === 'string' ? photo : photo.url} 
+                        className="w-full h-full object-cover" 
+                        alt={`Thumbnail ${index}`} 
+                      />
                     </button>
                   ))}
                 </div>
@@ -298,7 +336,7 @@ export const GlobalModal = () => {
                 {certificateData.image && (
                   <div className="relative mb-6 rounded-xl overflow-hidden bg-muted aspect-video">
                     <img 
-                      src={certificateData.image} 
+                      src={normalizeMediaUrl(certificateData.image)} 
                       alt={certificateData.title} 
                       className="w-full h-full object-contain"
                     />

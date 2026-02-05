@@ -49,7 +49,8 @@ export const AboutSection = () => {
   // Determine localized content
   const currentLang = i18n.language === 'en' ? 'en' : 'id';
   
-  const shortDesc = profile?.greeting || "";
+  // Use bio for detailed about section, greeting is used in hero
+  const shortDesc = ""; // Removed to avoid duplication or use a specific "about me" title if needed
     
   const longDesc = profile?.bio;
 
@@ -190,7 +191,7 @@ export const AboutSection = () => {
               </p>
             </div>
             
-            {shortDesc && <h3 className="text-xl font-bold mb-3 text-primary">{shortDesc}</h3>}
+            {/* Removed shortDesc rendering to rely solely on bio for rich text content in About section */}
             <div 
               className="text-muted-foreground text-base mb-6 leading-relaxed prose dark:prose-invert"
               dangerouslySetInnerHTML={{ __html: longDesc || '' }}

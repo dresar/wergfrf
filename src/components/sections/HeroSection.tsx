@@ -49,6 +49,7 @@ export const HeroSection = () => {
   
   // Use HomeContent if available, otherwise fallback to Profile or defaults
   const greeting = profile?.greeting;
+  const shortBio = profile?.shortBio || t('hero.description_default');
 
   // Parse roles
   let roles: string[] = ['Developer', 'Designer'];
@@ -146,7 +147,7 @@ export const HeroSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              dangerouslySetInnerHTML={{ __html: profile?.bio || t('hero.description_default') }}
+              dangerouslySetInnerHTML={{ __html: shortBio }}
             />
 
             {/* CTA Buttons */}

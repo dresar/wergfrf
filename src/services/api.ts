@@ -1,6 +1,7 @@
 // API Service untuk koneksi ke backend
+
 // Implementasi Real-time Data Fetching (In-Memory Only)
-const DIRECT_URL = "https://porto.apprentice.cyou/api";
+const DIRECT_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api" : "http://localhost:3000/api");
 
 // Helper function untuk API calls langsung tanpa persistent storage
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
@@ -75,58 +76,104 @@ import { dataManager } from './dataManager';
 
 // Profile API
 export const profileAPI = {
-  get: async () => dataManager.fetchWithCache('/profile/'),
+  get: async () => dataManager.fetchWithCache('/profile'), // Removed trailing slash
 };
 
 // Projects API
 export const projectsAPI = {
-  getAll: async () => dataManager.fetchWithCache('/projects/'),
-  getById: (id: number) => dataManager.fetchWithCache(`/projects/${id}/`),
+  getAll: async () => dataManager.fetchWithCache('/projects'),
+  getById: (id: number) => dataManager.fetchWithCache(`/projects/${id}`),
 };
 
 // Project Categories API
 export const projectCategoriesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/project-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/projects/categories'),
 };
 
 // Experience API
 export const experienceAPI = {
-  getAll: async () => dataManager.fetchWithCache('/experience/'),
+  getAll: async () => dataManager.fetchWithCache('/experience'),
 };
 
 // Skills API
 export const skillsAPI = {
-  getAll: async () => dataManager.fetchWithCache('/skills/'),
+  getAll: async () => dataManager.fetchWithCache('/skills'),
 };
 
 // Skill Categories API
 export const skillCategoriesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/skill-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/skill-categories'),
 };
 
 // Certificate Categories API
 export const certificateCategoriesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/certificate-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/certificate-categories'),
 };
 
 // Education API
 export const educationAPI = {
-  getAll: async () => dataManager.fetchWithCache('/education/'),
+  getAll: async () => dataManager.fetchWithCache('/education'),
+  create: async (data: any) => {
+    const result = await apiCall('/education', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/education');
+    return result;
+  },
+  update: async (id: number, data: any) => {
+    const result = await apiCall(`/education/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/education');
+    return result;
+  },
+  delete: async (id: number) => {
+    const result = await apiCall(`/education/${id}`, {
+        method: 'DELETE',
+    });
+    dataManager.invalidate('/education');
+    return result;
+  }
 };
 
 // Certificates API
 export const certificatesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/certificates/'),
+  getAll: async () => dataManager.fetchWithCache('/certificates'),
+  create: async (data: any) => {
+    const result = await apiCall('/certificates', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/certificates');
+    return result;
+  },
+  update: async (id: number, data: any) => {
+    const result = await apiCall(`/certificates/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/certificates');
+    return result;
+  },
+  delete: async (id: number) => {
+    const result = await apiCall(`/certificates/${id}`, {
+        method: 'DELETE',
+    });
+    dataManager.invalidate('/certificates');
+    return result;
+  }
 };
 
 // Social Links API
 export const socialLinksAPI = {
-  getAll: async () => dataManager.fetchWithCache('/social-links/'),
+  getAll: async () => dataManager.fetchWithCache('/social-links'),
 };
 
 // Messages API (Public POST only)
 export const messagesAPI = {
-  create: (data: any) => apiCall('/messages/', {
+  create: (data: any) => apiCall('/messages', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
@@ -134,36 +181,141 @@ export const messagesAPI = {
 
 // Site Settings API
 export const siteSettingsAPI = {
-  get: async () => dataManager.fetchWithCache('/settings/'),
+  get: async () => dataManager.fetchWithCache('/settings'),
+  createOrUpdate: async (data: any) => apiCall('/settings', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 };
 
 // WA Templates API (Public GET)
 export const waTemplatesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/wa-templates/'),
+  getAll: async () => dataManager.fetchWithCache('/wa-templates'),
+  create: async (data: any) => {
+    const result = await apiCall('/wa-templates', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/wa-templates');
+    return result;
+  },
+  update: async (id: number, data: any) => {
+    const result = await apiCall(`/wa-templates/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/wa-templates');
+    return result;
+  },
+  delete: async (id: number) => {
+    const result = await apiCall(`/wa-templates/${id}`, {
+        method: 'DELETE',
+    });
+    dataManager.invalidate('/wa-templates');
+    return result;
+  }
 };
 
 // Health check
 export const healthAPI = {
-  check: () => apiCall('/health/'), // Health check should not be cached
+  check: () => apiCall('/health'), // Health check should not be cached
 };
 
 // Blog Categories API
 export const blogCategoriesAPI = {
-  getAll: async () => dataManager.fetchWithCache('/blog-categories/'),
+  getAll: async () => dataManager.fetchWithCache('/blog-categories'),
+  create: async (data: any) => {
+    const result = await apiCall('/blog-categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/blog-categories');
+    return result;
+  },
+  update: async (id: number, data: any) => {
+    const result = await apiCall(`/blog-categories/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/blog-categories');
+    return result;
+  },
+  delete: async (id: number) => {
+    const result = await apiCall(`/blog-categories/${id}`, {
+        method: 'DELETE',
+    });
+    dataManager.invalidate('/blog-categories');
+    return result;
+  }
 };
 
 // Blog Posts API
 export const blogPostsAPI = {
-  getAll: async () => dataManager.fetchWithCache('/blog-posts/'),
-  getOne: async (slug: string) => dataManager.fetchWithCache(`/blog-posts/by_slug/?slug=${slug}`),
+  getAll: async () => dataManager.fetchWithCache('/blog-posts'),
+  getOne: async (slug: string) => dataManager.fetchWithCache(`/blog-posts/by_slug?slug=${slug}`),
+  getById: async (id: number) => dataManager.fetchWithCache(`/blog-posts/${id}`),
+  create: async (data: any) => {
+    const result = await apiCall('/blog-posts', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/blog-posts');
+    return result;
+  },
+  update: async (id: number, data: any) => {
+    const result = await apiCall(`/blog-posts/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+    dataManager.invalidate('/blog-posts');
+    return result;
+  },
+  delete: async (id: number) => {
+    const result = await apiCall(`/blog-posts/${id}`, {
+        method: 'DELETE',
+    });
+    dataManager.invalidate('/blog-posts');
+    return result;
+  }
 };
 
 // Home Content API
 export const homeContentAPI = {
-  get: async () => dataManager.fetchWithCache('/home-content/'),
+  get: async () => dataManager.fetchWithCache('/home-content'),
 };
 
 // About Content API
 export const aboutContentAPI = {
-  get: async () => dataManager.fetchWithCache('/about-content/'),
+  get: async () => dataManager.fetchWithCache('/about-content'),
+};
+
+// AI API
+export const aiAPI = {
+    fetchModels: (data: any) => apiCall('/ai/models', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
+};
+
+// Aggregate API export
+export const api = {
+    profile: profileAPI,
+    projects: projectsAPI,
+    projectCategories: projectCategoriesAPI,
+    experience: experienceAPI,
+    skills: skillsAPI,
+    skillCategories: skillCategoriesAPI,
+    certificateCategories: certificateCategoriesAPI,
+    education: educationAPI,
+    certificates: certificatesAPI,
+    socialLinks: socialLinksAPI,
+    messages: messagesAPI,
+    siteSettings: siteSettingsAPI,
+    waTemplates: waTemplatesAPI,
+    health: healthAPI,
+    blogCategories: blogCategoriesAPI,
+    blogPosts: blogPostsAPI,
+    homeContent: homeContentAPI,
+    aboutContent: aboutContentAPI,
+    ai: aiAPI
 };

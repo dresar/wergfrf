@@ -7,6 +7,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { useProjectCategories } from '@/hooks/useProjectCategories';
 import { Button } from '@/components/ui/button';
 import { AISummaryModal } from '@/components/ui/AISummaryModal';
+import { normalizeMediaUrl } from '@/lib/utils';
 
 export const ProjectsSection = () => {
   const { t } = useTranslation();
@@ -15,12 +16,12 @@ export const ProjectsSection = () => {
   const [activeFilter, setActiveFilter] = useState<number | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [summaryProject, setSummaryProject] = useState<any>(null);
-  const itemsPerPage = 8; // Show 8 projects per page with pagination
+  const itemsPerPage = 15; // Show 15 projects per page with pagination
   const { projects = [], isLoading, isError } = useProjects();
 
   const filters = useMemo(() => [
     { id: 'all', label: t('projects.all_projects') },
-    ...categories.map((c: any) => ({ id: c.id, label: c.name }))
+    ...(categories || []).map((c: any) => ({ id: c.id, label: c.name }))
   ], [categories, t]);
 
   const filteredProjects = projects.filter((project: any) =>
@@ -66,10 +67,10 @@ export const ProjectsSection = () => {
     return (
       <section id="projects" className="py-6 md:py-12 relative flex flex-col justify-center items-center text-center px-4">
         <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Gagal Memuat Proyek</h3>
-        <p className="text-muted-foreground mb-6">Terjadi kesalahan saat mengambil data proyek.</p>
+        <h3 className="text-xl font-semibold mb-2">{t('common.error')}</h3>
+        <p className="text-muted-foreground mb-6">{t('common.error')}</p>
         <Button onClick={() => window.location.reload()} variant="outline">
-          Coba Lagi
+          {t('common.retry')}
         </Button>
       </section>
     );
@@ -135,7 +136,7 @@ export const ProjectsSection = () => {
                 {/* Image */}
                 <div className="relative aspect-video overflow-hidden">
                   <img
-                    src={project.cover_image || project.thumbnail || project.image}
+                    src={normalizeMediaUrl(project.coverImage || project.thumbnail || project.image)}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
@@ -150,7 +151,7 @@ export const ProjectsSection = () => {
                       e.stopPropagation();
                       setSummaryProject(project);
                     }}
-                    title="AI Summary"
+                    title={t('projects.ai_summary')}
                   >
                     <Sparkles className="h-4 w-4" />
                   </Button>
@@ -165,7 +166,7 @@ export const ProjectsSection = () => {
                          e.stopPropagation();
                          navigate(`/project/${project.id}`);
                       }}
-                      title="View Details"
+                      title={t('projects.view_details')}
                     >
                       <Eye className="h-5 w-5" />
                     </Button>
@@ -180,44 +181,66 @@ export const ProjectsSection = () => {
                   </p>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies?.slice(0, 3).map((tech: any) => (
-                      <span
-                        key={tech.id}
-                        className="text-xs px-2 py-1 bg-secondary rounded-md"
-                      >
-                        {tech.name}
-                      </span>
-                    ))}
-                    {project.technologies?.length > 3 && (
-                      <span className="text-xs px-2 py-1 bg-secondary rounded-md">
-                        +{project.technologies.length - 3}
-                      </span>
-                    )}
+                    {(() => {
+                        let techList: string[] = [];
+                        try {
+                            if (Array.isArray(project.tech)) {
+                                techList = project.tech;
+                            } else if (typeof project.tech === 'string') {
+                                if (project.tech.startsWith('[')) {
+                                    techList = JSON.parse(project.tech);
+                                } else {
+                                    techList = project.tech.split(',').map(t => t.trim());
+                                }
+                            }
+                        } catch (e) {
+                            console.warn("Failed to parse tech", project.tech);
+                            techList = [];
+                        }
+
+                        return (
+                           <>
+                            {techList.slice(0, 3).map((tech: string, index: number) => (
+                              <span
+                                key={index}
+                                className="text-xs px-2 py-1 bg-secondary rounded-md"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                            {techList.length > 3 && (
+                              <span className="text-xs px-2 py-1 bg-secondary rounded-md">
+                                +{techList.length - 3}
+                              </span>
+                            )}
+                           </>
+                        )
+                    })()}
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t mt-4 gap-2">
                     <div className="flex gap-2">
                       {/* GitHub Button */}
-                      {(project.repoUrl || project.github_url) && (
+                      {(project.repo_urls?.length > 0 || project.repoUrl || project.github_url) && (
                         <Button
                           size="icon"
                           variant="outline"
                           className="rounded-full hover:bg-black hover:text-white transition-colors h-9 w-9"
-                          onClick={() => window.open(project.repoUrl || project.github_url, '_blank')}
-                          title="GitHub Repo"
+                          onClick={() => window.open(project.repo_urls?.[0] || project.repoUrl || project.github_url, '_blank')}
+                          title={t('projects.repository')}
                         >
                           <Github className="h-4 w-4" />
                         </Button>
                       )}
 
                       {/* Demo Button */}
-                      {(project.demoUrl || project.demo_url) && (
+                      {(project.demo_urls?.length > 0 || project.demoUrl || project.demo_url) && (
                         <Button
                           size="icon"
                           variant="outline"
                           className="rounded-full hover:bg-blue-500 hover:text-white transition-colors h-9 w-9"
-                          onClick={() => window.open(project.demoUrl || project.demo_url, '_blank')}
-                          title="Live Demo"
+                          onClick={() => window.open(project.demo_urls?.[0] || project.demoUrl || project.demo_url, '_blank')}
+                          title={t('projects.live_demo')}
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -230,7 +253,7 @@ export const ProjectsSection = () => {
                       size="sm"
                       className="gap-2 px-6 flex-1 ml-auto"
                     >
-                      Detail <ArrowRight className="h-4 w-4" />
+                      {t('projects.view_details')} <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -249,7 +272,7 @@ export const ProjectsSection = () => {
         {/* Empty State */}
         {displayedProjects.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground">{t('projects.no_projects')}</p>
+            <p className="text-muted-foreground">{t('projects.not_found')}</p>
           </div>
         )}
 
@@ -261,17 +284,17 @@ export const ProjectsSection = () => {
               onClick={handlePrevPage}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('common.previous')}
             </Button>
             <span className="flex items-center px-4 text-sm font-medium">
-              Page {currentPage} of {totalPages}
+              {t('common.page_info', { current: currentPage, total: totalPages })}
             </span>
             <Button
               variant="outline"
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('common.next')}
             </Button>
           </div>
         )}

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { GraduationCap, Calendar, Award, Image, FileText, Loader2 } from 'lucide-react';
+import { GraduationCap, Calendar, Award, Image as ImageIcon, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEducation } from '@/hooks/useEducation';
 import { useModalStore } from '@/store/modalStore';
@@ -9,6 +9,26 @@ export const EducationSection = () => {
   const { t } = useTranslation();
   const { openEducationGalleryModal, openEducationDocumentModal } = useModalStore();
   const { education = [], isLoading } = useEducation();
+  
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    if (dateString.toLowerCase() === 'sekarang' || dateString.toLowerCase() === 'present') return t('common.present');
+    
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+        
+        // Dynamic locale based on current language
+        const locale = t('common.present') === 'Sekarang' ? 'id-ID' : 'en-US';
+
+        return date.toLocaleDateString(locale, { 
+            year: 'numeric', 
+            month: 'short' 
+        });
+    } catch {
+        return dateString;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,7 +90,7 @@ export const EducationSection = () => {
                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md">
                           <Calendar className="w-3.5 h-3.5" />
-                          {edu.startDate} - {edu.endDate || t('common.present')}
+                          {formatDate(edu.startDate)} - {edu.endDate ? formatDate(edu.endDate) : t('common.present')}
                         </div>
                         {edu.gpa && (
                           <div className="flex items-center gap-1.5 bg-secondary/50 px-2 py-1 rounded-md text-primary font-medium">
@@ -83,19 +103,19 @@ export const EducationSection = () => {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-auto">
-                    {edu.gallery && edu.gallery.length > 0 && (
+                    {edu.gallery && (typeof edu.gallery === 'string' ? JSON.parse(edu.gallery).length > 0 : edu.gallery.length > 0) && (
                       <ShinyButton
                         onClick={() => openEducationGalleryModal(edu)}
-                        className="text-[10px] px-2.5 py-1.5 h-auto"
+                        className="text-[10px] px-3 py-1.5 h-7"
                       >
                         <ImageIcon className="w-3 h-3 mr-1.5" />
                         {t('education.gallery')}
                       </ShinyButton>
                     )}
-                    {edu.attachments && edu.attachments.length > 0 && (
+                    {edu.attachments && (typeof edu.attachments === 'string' ? JSON.parse(edu.attachments).length > 0 : edu.attachments.length > 0) && (
                       <ShinyButton
-                        onClick={() => openEducationDocumentModal(edu.attachments[0], 'Document')}
-                        className="text-[10px] px-2.5 py-1.5 h-auto"
+                        onClick={() => openEducationDocumentModal(Array.isArray(edu.attachments) ? edu.attachments[0] : JSON.parse(edu.attachments)[0], 'Document')}
+                        className="text-[10px] px-3 py-1.5 h-7"
                       >
                         <FileText className="w-3 h-3 mr-1.5" />
                         {t('education.docs')}

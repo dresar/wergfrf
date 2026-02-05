@@ -15,6 +15,13 @@ export const ExperienceSection = () => {
     );
   }
 
+  const formatDate = (dateString: string | Date | undefined) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      const locale = t('common.present') === 'Sekarang' ? 'id-ID' : 'en-US';
+      return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+  };
+
   return (
     <section id="experience" className="py-6 md:py-8 relative bg-card/30">
       <div className="container mx-auto px-4">
@@ -68,7 +75,7 @@ export const ExperienceSection = () => {
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mb-4">
                     <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md">
                       <Calendar className="w-4 h-4" />
-                      {new Date(exp.startDate).toLocaleDateString('en', { month: 'short', year: 'numeric' })} - {exp.isCurrent ? t('common.present') : (exp.endDate ? new Date(exp.endDate).toLocaleDateString('en', { month: 'short', year: 'numeric' }) : t('common.present'))}
+                      {formatDate(exp.startDate)} - {exp.isCurrent ? t('common.present') : (exp.endDate ? formatDate(exp.endDate) : t('common.present'))}
                     </div>
                     {exp.location && (
                       <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-md">

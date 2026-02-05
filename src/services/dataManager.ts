@@ -24,7 +24,7 @@ interface DataManagerConfig {
  * Can be overridden in constructor
  */
 const DEFAULT_CONFIG: DataManagerConfig = {
-  ttl: 60 * 60 * 1000, // 1 hour
+  ttl: 0, // 0 seconds (Realtime / No Cache)
   version: 'v1',
   storageKeyPrefix: 'portfolio_cache_',
 };
@@ -163,6 +163,6 @@ export class DataManager {
 // Let's default to 1 hour (3600s) as requested in point 5.
 
 export const dataManager = DataManager.getInstance({
-  // Use VITE_CACHE_TTL from env, fallback to 1 hour (3600000ms)
-  ttl: Number(import.meta.env.VITE_CACHE_TTL) || 60 * 60 * 1000, 
+  // Use VITE_CACHE_TTL from env, fallback to 0 (Realtime/No Cache) for development
+  ttl: import.meta.env.VITE_CACHE_TTL ? Number(import.meta.env.VITE_CACHE_TTL) : 0, 
 });

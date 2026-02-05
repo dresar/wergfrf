@@ -179,6 +179,7 @@
     "template_not_found": "Template tidak ditemukan.",
     "message_label": "Pesan",
     "message_placeholder": "Halo, saya ingin berdiskusi tentang...",
-    "send": "Kirim Pesan"
+    "send": "Kirim Pesan",
+    "no_number_configured": "Nomor WhatsApp belum dikonfigurasi. Silakan hubungi administrator."
   }
 }

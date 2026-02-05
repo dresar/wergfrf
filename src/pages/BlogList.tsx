@@ -31,7 +31,7 @@ const BlogList = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('newest'); // newest, oldest, a-z, z-a
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 8;
+  const postsPerPage = 15;
 
   const publishedPosts = useMemo(() => {
     return posts.filter((post: any) => post.is_published);
